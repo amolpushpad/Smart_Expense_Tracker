@@ -1,0 +1,4 @@
+import { NavLink, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+const links = [['/dashboard','▦','Dashboard'],['/expenses','↘','Expenses'],['/income','↗','Income'],['/budgets','◫','Budgets'],['/analytics','⌁','Analytics'],['/reports','▤','Reports'],['/profile','○','Profile']];
+export default function Sidebar() { const { logout } = useAuth(); const navigate = useNavigate(); return <aside className="sidebar"><div className="brand"><span className="brand-mark">₹</span><span>SmartExpense</span></div><nav>{links.map(([to,icon,label])=><NavLink key={to} to={to} className={({isActive})=>isActive?'nav-link active':'nav-link'}><span>{icon}</span>{label}</NavLink>)}</nav><button className="logout" onClick={async()=>{if(await logout()) navigate('/login');}}><span>↪</span> Logout</button></aside>; }
