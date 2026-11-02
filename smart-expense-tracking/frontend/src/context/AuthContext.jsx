@@ -35,10 +35,10 @@ export function AuthProvider({ children }) {
     return () => { mounted = false; };
   }, []);
 
-  const login = async (email, password, remember = false) => {
+  const login = async (email, password, remember = false, mode = 'personal') => {
     setError('');
     try {
-      const response = await api.post('/auth/login', { email, password, remember });
+      const response = await api.post('/auth/login', { email, password, remember, mode });
       setCsrfToken(response.data.data.csrf_token);
       setUser(response.data.data.user);
       return response.data.data.user;
@@ -58,6 +58,26 @@ export function AuthProvider({ children }) {
     }
   };
 
+  const registerCorporateOrganization = async payload => {
+    setError('');
+    try {
+      return await api.post('/corporate/organizations', payload);
+    } catch (requestError) {
+      setError(requestError.response?.data?.message || 'Unable to reach the server. Check that the backend is running.');
+      throw requestError;
+    }
+  };
+
+  const joinCorporateOrganization = async payload => {
+    setError('');
+    try {
+      return await api.post('/corporate/join', payload);
+    } catch (requestError) {
+      setError(requestError.response?.data?.message || 'Unable to reach the server. Check that the backend is running.');
+      throw requestError;
+    }
+  };
+
   const logout = async () => {
     try {
       const response = await api.post('/auth/logout');
@@ -71,7 +91,10 @@ export function AuthProvider({ children }) {
   };
 
   const clearError = () => setError('');
-  return <AuthContext.Provider value={{ user, loading, error, login, register, logout, refreshProfile, clearError }}>{children}</AuthContext.Provider>;
+  return <AuthContext.Provider value={{
+    user, loading, error, login, register, registerCorporateOrganization,
+    joinCorporateOrganization, logout, refreshProfile, clearError,
+  }}>{children}</AuthContext.Provider>;
 }
 
 export const useAuth = () => useContext(AuthContext);

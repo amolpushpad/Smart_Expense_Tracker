@@ -1,5 +1,6 @@
 """Application entry point and app factory for the expense tracker API."""
 import secrets
+from decimal import Decimal
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -25,7 +26,7 @@ def create_app(config_object=Config):
         origins=app.config["CORS_ORIGINS"],
         supports_credentials=True,
         allow_headers=["Content-Type", "X-CSRF-Token"],
-        methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     )
 
     from models import Category
@@ -33,6 +34,7 @@ def create_app(config_object=Config):
     from routes.analytics_routes import analytics_bp
     from routes.budget_routes import budget_bp
     from routes.category_routes import category_bp
+    from routes.corporate_routes import corporate_bp
     from routes.dashboard_routes import dashboard_bp
     from routes.expense_routes import expense_bp
     from routes.income_routes import income_bp
@@ -43,6 +45,7 @@ def create_app(config_object=Config):
     app.register_blueprint(analytics_bp, url_prefix="/api/analytics")
     app.register_blueprint(budget_bp, url_prefix="/api/budgets")
     app.register_blueprint(category_bp, url_prefix="/api/categories")
+    app.register_blueprint(corporate_bp, url_prefix="/api/corporate")
     app.register_blueprint(dashboard_bp, url_prefix="/api/dashboard")
     app.register_blueprint(expense_bp, url_prefix="/api/expenses")
     app.register_blueprint(income_bp, url_prefix="/api/income")
@@ -51,7 +54,13 @@ def create_app(config_object=Config):
 
     @app.before_request
     def enforce_csrf():
-        csrf_paths = {"/api/auth/register", "/api/auth/login", "/api/auth/logout"}
+        csrf_paths = {
+            "/api/auth/register",
+            "/api/auth/login",
+            "/api/auth/logout",
+            "/api/corporate/organizations",
+            "/api/corporate/join",
+        }
         if (
             request.method in {"POST", "PUT", "PATCH", "DELETE"}
             and request.path.startswith("/api/")
@@ -113,6 +122,99 @@ def create_app(config_object=Config):
                     f"CREATE UNIQUE INDEX {quoted_index} ON {quoted_table} ({quoted_username})"
                 ))
         print("Profile columns and username uniqueness are ready.")
+
+    @app.cli.command("seed-corporate-demo")
+    def seed_corporate_demo():
+        """Create an isolated fictional organization and three months of corporate expenses."""
+        from datetime import date
+
+        from models import CorporateExpense, CorporateMembership, Department, Organization, User
+
+        organization_name = "Northstar Demo Corporation"
+        if Organization.query.filter_by(name=organization_name).first():
+            print("The Northstar demo organization already exists; no data was changed.")
+            return
+
+        demo_accounts = [
+            ("Alex Morgan", "admin@northstar-demo.example", "Admin"),
+            ("Jordan Lee", "employee@northstar-demo.example", "Employee"),
+            ("Riley Chen", "manager@northstar-demo.example", "Manager"),
+            ("Taylor Brooks", "finance@northstar-demo.example", "Finance Officer"),
+            ("Casey Patel", "executive@northstar-demo.example", "Executive"),
+        ]
+        if any(User.query.filter_by(email=email).first() for _, email, _ in demo_accounts):
+            raise ClickException("A Northstar demo email already exists. No data was changed; choose another demo database.")
+
+        organization = Organization(name=organization_name)
+        db.session.add(organization)
+        db.session.flush()
+        department_names = ("Engineering", "Sales", "Operations")
+        departments = {
+            name: Department(organization_id=organization.organization_id, name=name)
+            for name in department_names
+        }
+        db.session.add_all(departments.values())
+        db.session.flush()
+
+        users = {}
+        role_departments = {
+            "Admin": "Operations",
+            "Employee": "Engineering",
+            "Manager": "Engineering",
+            "Finance Officer": "Operations",
+            "Executive": "Sales",
+        }
+        for name, email, role in demo_accounts:
+            user = User(name=name, email=email)
+            user.set_password("NorthstarDemo2026!")
+            db.session.add(user)
+            db.session.flush()
+            users[role] = user
+            db.session.add(CorporateMembership(
+                organization_id=organization.organization_id,
+                user_id=user.user_id,
+                department_id=departments[role_departments[role]].department_id,
+                role=role,
+            ))
+
+        today = date.today()
+        month_dates = []
+        for months_back in (2, 1, 0):
+            month_index = today.year * 12 + today.month - 1 - months_back
+            year, month_zero = divmod(month_index, 12)
+            month = month_zero + 1
+            month_dates.append(date(year, month, min(today.day, 28)))
+        records = [
+            (0, "Employee", "Travel", "City Transit", "Client-site commute", "Pending Manager"),
+            (0, "Employee", "Meals", "Harvest Cafe", "Project planning lunch", "Pending Finance"),
+            (0, "Manager", "Software", "CloudDesk", "Team collaboration license", "Approved"),
+            (1, "Employee", "Equipment", "ByteWorks", "Development peripherals", "Approved"),
+            (1, "Employee", "Travel", "MetroRail", "Customer workshop", "Rejected"),
+            (1, "Manager", "Training", "LearnHub", "Team certification course", "Approved"),
+            (2, "Employee", "Travel", "Northstar Air", "Quarterly customer visit", "Pending Manager"),
+            (2, "Employee", "Office Supplies", "Paper & Co", "Team stationery", "Approved"),
+            (2, "Manager", "Software", "DataCloud", "Analytics subscription", "Pending Finance"),
+        ]
+        for month_offset, submitter_role, category, merchant, description, status in records:
+            submitter = users[submitter_role]
+            row = CorporateExpense(
+                organization_id=organization.organization_id,
+                submitter_id=submitter.user_id,
+                department_id=departments[role_departments[submitter_role]].department_id,
+                amount=Decimal("125.00") + Decimal(month_offset * 47),
+                expense_date=month_dates[month_offset],
+                category=category,
+                merchant=merchant,
+                description=description,
+                status=status,
+                manager_id=users["Manager"].user_id if status != "Pending Manager" else None,
+                finance_id=users["Finance Officer"].user_id if status in ("Approved", "Rejected") else None,
+            )
+            db.session.add(row)
+        db.session.commit()
+        print(f"Created the fictional {organization_name} organization with data from three months.")
+        print(f"Joining code: {organization.joining_code}")
+        print("Demo password for all sample users: NorthstarDemo2026!")
 
     @app.errorhandler(SQLAlchemyError)
     def handle_database_error(_error):

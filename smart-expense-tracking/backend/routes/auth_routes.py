@@ -3,7 +3,7 @@ import secrets
 from flask import Blueprint, jsonify, request, session
 
 from extensions import db
-from models import User
+from models import CorporateMembership, User
 from services.auth_service import authenticate_user, register_user
 
 auth_bp = Blueprint("auth", __name__)
@@ -12,6 +12,20 @@ auth_bp = Blueprint("auth", __name__)
 def _json_body():
     payload = request.get_json(silent=True)
     return payload if isinstance(payload, dict) else {}
+
+
+def _session_user(user, mode):
+    result = user.to_safe_dict()
+    result["workspace_mode"] = mode
+    if mode == "corporate":
+        membership = CorporateMembership.query.filter_by(user_id=user.user_id).first()
+        if membership:
+            result.update({
+                "role": membership.role,
+                "organization": membership.organization.name,
+                "department": membership.department.name if membership.department else None,
+            })
+    return result
 
 
 @auth_bp.get("/csrf")
@@ -43,14 +57,21 @@ def login():
         return jsonify(success=False, message="Email and password are required."), 400
     if "remember" in payload and not isinstance(payload["remember"], bool):
         return jsonify(success=False, message="Remember me must be a boolean value."), 400
+    mode = payload.get("mode", "personal")
+    if mode not in ("personal", "corporate"):
+        return jsonify(success=False, message="Choose Personal or Corporate Mode."), 400
     user = authenticate_user(email, password)
     if not user:
         return jsonify(success=False, message="Invalid email or password."), 401
+    membership = CorporateMembership.query.filter_by(user_id=user.user_id).first()
+    if mode == "corporate" and not membership:
+        return jsonify(success=False, message="This account is not part of a corporate organization."), 403
     session.clear()
     session["user_id"] = user.user_id
+    session["workspace_mode"] = mode
     session["csrf_token"] = secrets.token_urlsafe(32)
     session.permanent = bool(payload.get("remember", False))
-    return jsonify(success=True, message="Signed in successfully.", data={"user": user.to_safe_dict(), "csrf_token": session["csrf_token"]})
+    return jsonify(success=True, message="Signed in successfully.", data={"user": _session_user(user, mode), "csrf_token": session["csrf_token"]})
 
 
 @auth_bp.post("/logout")
@@ -67,4 +88,8 @@ def current_user():
     if not user:
         session.pop("user_id", None)
         return jsonify(success=False, message="Authentication required."), 401
-    return jsonify(success=True, data={"user": user.to_safe_dict()})
+    mode = session.get("workspace_mode", "personal")
+    if mode == "corporate" and not CorporateMembership.query.filter_by(user_id=user.user_id).first():
+        session.clear()
+        return jsonify(success=False, message="Corporate membership is no longer available. Sign in again."), 401
+    return jsonify(success=True, data={"user": _session_user(user, mode)})

@@ -6,6 +6,7 @@ export default function Login() {
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
 	const [remember, setRemember] = useState(false);
+	const [mode, setMode] = useState('personal');
 	const [show, setShow] = useState(false);
 	const [error, setError] = useState('');
 	const [submitting, setSubmitting] = useState(false);
@@ -23,8 +24,10 @@ export default function Login() {
 		}
 		setSubmitting(true);
 		try {
-			await login(email, password, remember);
-			navigate('/dashboard', { replace: true });
+			const user = mode === 'corporate'
+				? await login(email, password, remember, mode)
+				: await login(email, password, remember);
+			navigate(user.workspace_mode === 'corporate' ? '/corporate' : '/dashboard', { replace: true });
 		} catch (requestError) {
 			setError(requestError.response?.data?.message || 'Unable to reach the server. Check that the backend is running.');
 		} finally {
@@ -34,7 +37,12 @@ export default function Login() {
 
 	return <div className="auth-page"><div className="auth-card">
 		<div className="auth-brand"><span>₹</span><strong>SmartExpense</strong></div>
-		<h1>Welcome back</h1><p className="muted">Sign in to your personal finance dashboard.</p>
+		<h1>Welcome back</h1><p className="muted">Choose a workspace to continue.</p>
+		<div className="mode-switch" role="group" aria-label="Workspace mode">
+			<button type="button" className={mode === 'personal' ? 'selected' : ''} aria-pressed={mode === 'personal'} onClick={() => setMode('personal')}>Personal</button>
+			<button type="button" className={mode === 'corporate' ? 'selected' : ''} aria-pressed={mode === 'corporate'} onClick={() => setMode('corporate')}>Corporate</button>
+		</div>
+		{mode === 'corporate' && <p className="workspace-hint">Sign in to your organization with your assigned corporate role.</p>}
 		{location.state?.message && <div className="form-success" role="status">{location.state.message}</div>}
 		{(error || authError) && <div className="form-error" role="alert">{error || authError}</div>}
 		<form onSubmit={submit}>

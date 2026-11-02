@@ -22,7 +22,7 @@ backend/
 frontend/
   src/components/        Shared navigation, forms, charts, and dialogs
   src/context/           Authentication/session context
-  src/pages/             Dashboard, finance, analytics, reports, and profile screens
+  src/pages/             Personal finance screens and the corporate workspace
   src/services/          Axios API clients
   src/styles/            Responsive page styles
   src/test/              Frontend test setup
@@ -33,6 +33,10 @@ database/
 Phase 1 provides the React/Vite interface. Phase 2 adds Flask, MySQL-backed accounts, and cookie-based authentication. Phase 3 adds authenticated expense management and category administration. Phase 4 adds user-scoped income and monthly budget management. Phase 5 connects the dashboard, charts, and insights to authenticated financial data. Phase 6 adds weekly/monthly/custom analytics and CSV reports. Phase 7 adds optional, user-scoped categorization, predictions, unusual-spending checks, and duplicate candidates.
 
 ### Included
+- Separate Personal and Corporate sign-in/registration modes; existing Personal Mode routes and personal financial records remain intact
+- Corporate organization creation with a unique joining code, code-based employee onboarding, departments, and Admin, Employee, Manager, Finance Officer, and Executive roles
+- Role-scoped corporate dashboards, expense submission/history, and an Employee → Manager → Finance Officer approval workflow
+- Idempotent `seed-corporate-demo` command with fictional users and expense examples dated across the current and previous two months
 - Login and registration connected to Flask APIs with frontend and server-side validation
 - Protected dashboard routes with responsive navigation across finance, analytics, reports, and account screens
 - Expense CRUD, server-side search/filter/sort, and paginated transaction history
@@ -68,6 +72,8 @@ Install MySQL and create a database and application user using [database/README.
 
 `flask --app app init-db` creates missing tables and seeds built-in categories without dropping or resetting existing tables. For an existing database, back it up and run `flask --app app migrate-profile` to add missing nullable profile fields and username uniqueness. The profile migration is repeatable. Neither command deletes financial records.
 
+Corporate features use separate `corporate_organizations`, `corporate_departments`, `corporate_memberships`, and `corporate_expenses` tables. Run `flask --app app init-db` once to create these new tables; it does not alter or delete existing Personal Mode data. To load optional fictional sample data for three months, run `flask --app app seed-corporate-demo`. The command is idempotent for its demo organization and refuses to overwrite accounts if any of its sample email addresses already exist. Demo accounts use the `@northstar-demo.example` domain and the shared password `NorthstarDemo2026!`; the generated joining code is printed by the command and shown to organization admins in the dashboard.
+
 Tests use in-memory SQLite fixtures and do not read or write configured MySQL records. Local runtime verification uses only the health endpoint; it does not create, modify, or delete user transactions.
 
 ## Environment variables
@@ -92,7 +98,7 @@ Backend settings:
 | `ADMIN_EMAILS` | Optional comma-separated existing account emails allowed to administer shared categories. |
 | `PROFILE_UPLOAD_DIR` | Optional absolute persistent directory for profile photos; defaults to `backend/instance/profile_photos`. |
 
-The frontend uses `VITE_API_BASE_URL`, defaulting to `http://localhost:5000/api`. Use matching hostnames for the frontend/backend in local development because cookies are host-scoped. The Vite default origin must be listed in `FRONTEND_ORIGINS`.
+The frontend uses `VITE_API_BASE_URL`; by default it targets port 5000 on the hostname used to open the frontend (for example, `127.0.0.1` or `localhost`). This keeps the session cookie and CSRF token on the same host. If `VITE_API_BASE_URL` is set explicitly, use the same hostname for the frontend and API. The Vite origin must be listed in `FRONTEND_ORIGINS`.
 
 Never commit `backend/.env` or `frontend/.env`. `.env.example` files contain placeholders only. `SECRET_KEY` falls back to a generated process-local value if it is not set; configure a stable secret before relying on persistent sessions across restarts.
 

@@ -1,6 +1,13 @@
 import axios from 'axios';
 
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+const defaultApiHost = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
+const configuredApiBaseUrl = import.meta.env.VITE_API_BASE_URL || `http://${defaultApiHost}:5000/api`;
+const apiBaseUrl = new URL(configuredApiBaseUrl);
+const localHosts = ['localhost', '127.0.0.1'];
+if (typeof window !== 'undefined' && localHosts.includes(defaultApiHost) && localHosts.includes(apiBaseUrl.hostname)) {
+	apiBaseUrl.hostname = defaultApiHost;
+}
+export const API_BASE_URL = apiBaseUrl.toString().replace(/\/$/, '');
 
 let csrfToken = null;
 let csrfRequest = null;
@@ -84,6 +91,15 @@ export const profileApi = {
 	removePhoto: () => api.delete('/users/profile/photo'),
 	changePassword: payload => api.post('/users/password', payload),
 	photo: (url, config = {}) => api.get(url.startsWith('/api/') ? url.slice(4) : url, { ...config, responseType: 'blob' }),
+};
+
+export const corporateApi = {
+  overview: () => api.get('/corporate/overview'),
+  submitExpense: payload => api.post('/corporate/expenses', payload),
+  expenses: params => api.get('/corporate/expenses', { params }),
+  decideExpense: (expenseId, payload) => api.post(`/corporate/expenses/${expenseId}/decision`, payload),
+  createDepartment: payload => api.post('/corporate/departments', payload),
+  updateMember: (membershipId, payload) => api.patch(`/corporate/members/${membershipId}`, payload),
 };
 
 export const dashboardSummaryApi = {
