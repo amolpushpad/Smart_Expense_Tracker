@@ -4,6 +4,7 @@
 .env.*
 !.env.example
 *.pem
+!smart-expense-tracking/backend/ca.pem
 *.key
 
 # Python

@@ -1,6 +1,10 @@
 import os
 import secrets
+from pathlib import Path
 from urllib.parse import quote_plus
+
+AIVEN_CA_CERT_PATH = Path(__file__).resolve().with_name("ca.pem")
+_LOCAL_DATABASE_HOSTS = {"localhost", "127.0.0.1", "::1"}
 
 
 def _database_uri():
@@ -12,9 +16,32 @@ def _database_uri():
     return f"mysql+pymysql://{user}:{password}@{host}:{port}/{database}?charset=utf8mb4"
 
 
+def _database_engine_options():
+    host = os.getenv("MYSQL_HOST", "localhost").strip().lower()
+    production = (
+        os.getenv("RENDER", "").lower() == "true"
+        or os.getenv("FLASK_ENV", "").lower() == "production"
+    )
+    if not production and host in _LOCAL_DATABASE_HOSTS:
+        return {}
+    if not AIVEN_CA_CERT_PATH.is_file():
+        raise RuntimeError(
+            "MySQL TLS requires the Aiven CA certificate at "
+            f"{AIVEN_CA_CERT_PATH}. Add backend/ca.pem before starting the application."
+        )
+    return {
+        "connect_args": {
+            "ssl_ca": str(AIVEN_CA_CERT_PATH),
+            "ssl_verify_cert": True,
+            "ssl_verify_identity": True,
+        }
+    }
+
+
 class Config:
     SECRET_KEY = os.getenv("SECRET_KEY") or secrets.token_hex(32)
     SQLALCHEMY_DATABASE_URI = _database_uri()
+    SQLALCHEMY_ENGINE_OPTIONS = _database_engine_options()
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     CORS_ORIGINS = [
         origin.strip()

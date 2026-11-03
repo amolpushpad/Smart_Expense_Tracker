@@ -56,7 +56,7 @@ export default function Login() {
 		<form onSubmit={submit}>
 			<label>Email<input type="email" value={email} onChange={event => setEmail(event.target.value)} placeholder="you@example.com" autoComplete="email" required /></label>
 			<label>Password<div className="password-wrap"><input type={show ? 'text' : 'password'} value={password} onChange={event => setPassword(event.target.value)} placeholder="Enter your password" autoComplete="current-password" required /><button type="button" onClick={() => setShow(!show)} aria-label={show ? 'Hide password' : 'Show password'}>{show ? 'Hide' : 'Show'}</button></div></label>
-			<div className="form-row"><label className="check"><input type="checkbox" checked={remember} onChange={event => setRemember(event.target.checked)} /> Remember me</label><span className="password-help">Forgot password? Change it in Profile after signing in.</span></div>
+			<div className="form-row"><label className="check"><input type="checkbox" checked={remember} onChange={event => setRemember(event.target.checked)} /> Remember me</label></div>
 			<button className="primary-btn" type="submit" disabled={submitting}>{submitting ? 'Signing in...' : 'Login'}</button>
 		</form>
 		<p className="auth-footer">Don't have an account? <Link to="/register">Create one</Link><br /><Link to="/demo">Explore synthetic data demo</Link></p>
