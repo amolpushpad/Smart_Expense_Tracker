@@ -1,0 +1,81 @@
+{
+  "dataset": {
+    "name": "Synthetic Personal Finance Dataset",
+    "kind": "synthetic_cross_sectional_user_snapshots",
+    "currency": "USD",
+    "record_count": 32424,
+    "column_count": 20,
+    "snapshot_date_range": {
+      "start": "2021-07-23",
+      "end": "2025-07-22"
+    },
+    "exact_duplicate_rows": 0,
+    "duplicate_user_ids": 0,
+    "note": "Synthetic aggregate profile snapshots; not transaction history, not real user data, and not a forecast."
+  },
+  "overview": {
+    "synthetic_profiles": 32424,
+    "average_monthly_income_usd": 4027.86,
+    "average_monthly_expenses_usd": 2419.44,
+    "median_monthly_expenses_usd": 2219.57,
+    "average_savings_usd": 243752.04,
+    "profiles_with_loan": 12995,
+    "profiles_with_loan_percent": 40.08
+  },
+  "employment_groups": [
+    {
+      "employment_status": "Employed",
+      "records": 19410,
+      "average_monthly_income_usd": 4018.03,
+      "average_monthly_expenses_usd": 2413.71,
+      "median_monthly_expenses_usd": 2207.78,
+      "average_savings_usd": 243478.99
+    },
+    {
+      "employment_status": "Self-employed",
+      "records": 6580,
+      "average_monthly_income_usd": 4047.98,
+      "average_monthly_expenses_usd": 2435.32,
+      "median_monthly_expenses_usd": 2227.4,
+      "average_savings_usd": 245611.81
+    },
+    {
+      "employment_status": "Student",
+      "records": 3214,
+      "average_monthly_income_usd": 4052.35,
+      "average_monthly_expenses_usd": 2425.15,
+      "median_monthly_expenses_usd": 2265.6,
+      "average_savings_usd": 245403.77
+    },
+    {
+      "employment_status": "Unemployed",
+      "records": 3220,
+      "average_monthly_income_usd": 4021.59,
+      "average_monthly_expenses_usd": 2415.88,
+      "median_monthly_expenses_usd": 2210.36,
+      "average_savings_usd": 239948.91
+    }
+  ],
+  "loan_types": [
+    {
+      "loan_type": "Business",
+      "records": 3261
+    },
+    {
+      "loan_type": "Car",
+      "records": 3175
+    },
+    {
+      "loan_type": "Education",
+      "records": 3275
+    },
+    {
+      "loan_type": "Home",
+      "records": 3284
+    },
+    {
+      "loan_type": "No loan",
+      "records": 19429
+    }
+  ]
+}

@@ -2,3 +2,349 @@
 .budget-summary{display:flex;gap:16px;margin-bottom:18px}.budget-summary>div{background:#fff;border:1px solid #e7eaf0;border-radius:14px;padding:18px 20px;min-width:190px}.budget-summary span{display:block;color:#778196;font-size:13px}.budget-summary strong{display:block;font-size:24px;margin-top:5px}.budget-layout{display:grid;grid-template-columns:minmax(260px,.75fr) minmax(0,1.25fr);gap:18px}.budget-form{display:grid;gap:15px}.budget-form label{font-size:12px;font-weight:650;color:#465166}.budget-form input,.budget-form select{display:block;width:100%;border:1px solid #d9dee8;border-radius:9px;padding:11px 12px;margin-top:7px;background:#fff;outline:none}.budget-form input:focus,.budget-form select:focus{border-color:#756cf4;box-shadow:0 0 0 3px #756cf41a}.text-btn,.danger-btn{border:0;background:transparent;color:#635bff;padding:4px 0;font-size:12px}.danger-btn{color:#d14c42}.budget-empty{min-height:220px;display:grid;place-items:center;text-align:center;color:#7b8799}.budget-empty .placeholder-icon{align-self:end}.budget-empty p{align-self:start;margin:0}.budget-list{display:grid;gap:12px}.budget-item{display:grid;grid-template-columns:1fr auto auto;gap:18px;align-items:center;padding:14px 0;border-bottom:1px solid #f0f1f4}.budget-item:last-child{border-bottom:0}.budget-item h4{font-size:14px;margin:0 0 5px}.budget-item p{font-size:12px;color:#8993a5;margin:0}.budget-item>strong{font-size:15px}.budget-actions{display:flex;gap:12px}
 @media(max-width:900px){.sidebar{width:210px}.main-area{margin-left:210px}.summary-grid{grid-template-columns:repeat(2,1fr)}.dashboard-grid{grid-template-columns:1fr}}
 @media(max-width:650px){.sidebar{position:static;width:100%;height:auto;padding:10px;flex-direction:row;align-items:center;overflow:auto}.sidebar .brand{padding:5px 8px;min-width:max-content}.sidebar nav{display:flex}.nav-link{padding:9px 10px;white-space:nowrap}.nav-link span,.logout span{display:none}.logout{margin:0;white-space:nowrap}.app-shell{display:block}.main-area{margin:0}.navbar{height:70px;padding:13px 18px}.navbar h1{font-size:14px}.mobile-brand{display:block;font-weight:800;color:#635bff;margin-bottom:2px}.page-content{padding:20px 15px}.summary-grid{grid-template-columns:1fr}.page-header{align-items:flex-start;gap:10px}.page-header h2{font-size:23px}.auth-card{padding:28px 22px}.budget-summary{gap:10px}.budget-summary>div{min-width:0;flex:1;padding:14px}.budget-summary strong{font-size:19px}.budget-layout{grid-template-columns:1fr}.budget-item{grid-template-columns:1fr auto}.budget-actions{grid-column:1 / -1}}
+:root {
+	--color-primary: #7C3AED;
+	--color-primary-dark: #4C1D95;
+	--color-deep-navy: #21143D;
+	--color-lavender: #EDE9FE;
+	--color-page-background: #F8F7FC;
+	--color-white: #FFFFFF;
+	--color-text: #211B35;
+	--color-secondary-text: #77718A;
+	--color-border: #EAE6F2;
+	--color-success: #16A34A;
+	--color-danger: #DC2626;
+}
+
+.spendwise-logo-container {
+	width: 100px;
+	height: 100px;
+	flex: 0 0 100px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	overflow: hidden;
+	border: 1px solid var(--color-lavender);
+	border-radius: 50%;
+	background: var(--color-white);
+	box-shadow: 0 4px 15px rgba(124, 58, 237, .12);
+}
+
+.spendwise-logo {
+	display: block;
+	width: 90%;
+	height: 90%;
+	object-fit: contain;
+}
+
+.spendwise-brand-name {
+	font-size: 30px;
+	font-weight: 800;
+	letter-spacing: -.04em;
+	line-height: 1.1;
+	white-space: nowrap;
+}
+
+.spendwise-brand-name > span {
+	width: auto;
+	height: auto;
+	border-radius: 0;
+	background: transparent;
+	display: inline;
+	font-weight: inherit;
+}
+
+.spendwise-brand-name > span:first-child {
+	color: var(--color-deep-navy);
+}
+
+.spendwise-brand-name > span:last-child {
+	color: var(--color-primary);
+}
+
+.spendwise-tagline {
+	margin: 0;
+	color: var(--color-secondary-text);
+	font-size: 13px;
+	font-weight: 500;
+	letter-spacing: .025em;
+	line-height: 1.55;
+	text-align: center;
+}
+
+body {
+	background: var(--color-page-background);
+	color: var(--color-text);
+}
+
+.sidebar {
+	background: var(--color-deep-navy);
+}
+
+.sidebar .brand {
+	justify-content: center;
+	padding: 4px 4px 24px;
+}
+
+.brand-lockup {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+}
+
+.sidebar-brand-lockup {
+	gap: 8px;
+}
+
+.sidebar-brand-logo {
+	width: 48px;
+	height: 48px;
+	flex: 0 0 48px;
+}
+
+.sidebar-brand-logo.spendwise-logo-container {
+	width: 48px;
+	height: 48px;
+	flex-basis: 48px;
+}
+
+.sidebar-brand-name {
+	font-size: 18px;
+}
+
+.sidebar-brand-name > span:first-child {
+	color: var(--color-white);
+}
+
+.nav-link {
+	transition: color .18s ease, background-color .18s ease;
+}
+
+.nav-link:hover,
+.nav-link.active {
+	background: rgba(124, 58, 237, .2);
+	color: var(--color-white);
+}
+
+.nav-link.active {
+	box-shadow: inset 3px 0 var(--color-primary);
+}
+
+.logout {
+	transition: color .18s ease, background-color .18s ease;
+}
+
+.logout:hover {
+	border-radius: 9px;
+	background: rgba(124, 58, 237, .16);
+	color: var(--color-white);
+}
+
+.avatar {
+	background: var(--color-lavender);
+	color: var(--color-primary-dark);
+}
+
+.summary-card,
+.panel {
+	border-color: var(--color-border);
+}
+
+.card-icon.purple,
+.placeholder-icon {
+	background: var(--color-lavender);
+	color: var(--color-primary);
+}
+
+.progress span,
+.dashboard-progress span,
+.budget-progress-track span,
+.dashboard-period-tabs button.active {
+	background: var(--color-primary);
+}
+
+.auth-page {
+	background: radial-gradient(ellipse at top left, #EDE9FE 0, transparent 48%), var(--color-page-background);
+}
+
+.auth-card {
+	border-color: var(--color-border);
+	box-shadow: 0 20px 60px rgba(33, 20, 61, .1);
+}
+
+.auth-brand {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	margin-bottom: 22px;
+}
+
+.auth-brand .spendwise-logo-container {
+	width: 100px;
+	height: 100px;
+	flex-basis: 100px;
+}
+
+.auth-brand .spendwise-brand-name {
+	width: auto;
+	height: auto;
+	border-radius: 0;
+	background: transparent;
+	display: block;
+	font-size: 30px;
+	font-weight: 800;
+	line-height: 1.1;
+	text-align: center;
+}
+
+.auth-brand .spendwise-tagline {
+	margin-top: -3px;
+}
+
+.auth-card {
+	width: min(440px, 100%);
+}
+
+.auth-card h1 {
+	color: var(--color-deep-navy);
+}
+
+.auth-card input:focus,
+.budget-form input:focus,
+.budget-form select:focus {
+	border-color: var(--color-primary);
+	box-shadow: 0 0 0 3px rgba(124, 58, 237, .14);
+}
+
+.check input {
+	accent-color: var(--color-primary);
+}
+
+.link-text,
+.auth-footer a,
+.password-wrap button,
+.text-btn,
+.danger-btn,
+.dashboard-empty a,
+.dashboard-links a {
+	color: var(--color-primary);
+}
+
+.primary-btn {
+	background: var(--color-primary);
+	box-shadow: 0 6px 14px rgba(124, 58, 237, .18);
+	transition: background-color .18s ease, transform .18s ease;
+}
+
+.primary-btn:hover {
+	background: var(--color-primary-dark);
+	transform: translateY(-1px);
+}
+
+.primary-btn:disabled {
+	cursor: wait;
+	opacity: .7;
+	transform: none;
+}
+
+.password-help {
+	color: var(--color-secondary-text);
+	font-size: 11px;
+	text-align: right;
+}
+
+.mobile-brand {
+	color: var(--color-primary);
+}
+
+.mobile-brand .spendwise-brand-name {
+	font-size: 15px;
+}
+
+.dashboard-panel,
+.phase4-summary,
+.phase4-budget-card,
+.phase4-filters {
+	border-color: var(--color-border);
+}
+
+.dashboard-panel-title h2,
+.phase4-budget-heading h3,
+.phase4-budget-numbers strong {
+	color: var(--color-text);
+}
+
+.dashboard-period-tabs button.active {
+	color: var(--color-white);
+}
+
+@media (max-width: 650px) {
+	.sidebar {
+		position: static;
+		width: 100%;
+		height: auto;
+		flex-direction: column;
+		align-items: stretch;
+		gap: 8px;
+		padding: 10px 12px;
+		overflow: hidden;
+	}
+
+	.sidebar .brand {
+		justify-content: center;
+		min-width: 0;
+		padding: 0 0 6px;
+	}
+
+	.sidebar-brand-logo {
+		width: 52px;
+		height: 52px;
+		flex-basis: 52px;
+	}
+
+	.sidebar-brand-logo.spendwise-logo-container {
+		width: 52px;
+		height: 52px;
+		flex-basis: 52px;
+	}
+
+	.sidebar-brand-name {
+		font-size: 17px;
+	}
+
+	.sidebar nav {
+		width: 100%;
+		overflow-x: auto;
+		padding-bottom: 3px;
+	}
+
+	.sidebar .nav-link {
+		flex: 0 0 auto;
+	}
+
+	.sidebar .nav-link span,
+	.sidebar .logout span {
+		display: inline;
+	}
+
+	.sidebar .logout {
+		align-self: flex-end;
+	}
+
+	.auth-brand .spendwise-logo-container {
+		width: min(100px, 27vw);
+		height: min(100px, 27vw);
+		flex-basis: min(100px, 27vw);
+	}
+
+	.auth-brand .spendwise-brand-name {
+		font-size: clamp(24px, 7vw, 30px);
+	}
+
+	.password-help {
+		max-width: 55%;
+		line-height: 1.4;
+	}
+}

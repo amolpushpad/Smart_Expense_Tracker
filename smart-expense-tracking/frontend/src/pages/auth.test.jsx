@@ -56,6 +56,13 @@ describe('authentication screens', () => {
 		expect(await screen.findByRole('alert')).toHaveTextContent('Invalid email or password.');
 	});
 
+	it('navigates from login to registration', () => {
+		renderAuthPage('login', '/login');
+		fireEvent.click(screen.getByRole('link', { name: 'Create one' }));
+
+		expect(screen.getByText('Register screen')).toBeInTheDocument();
+	});
+
 	it('does not submit registration when confirmation passwords differ', () => {
 		renderAuthPage('register', '/register');
 		fireEvent.change(screen.getByLabelText('Full name'), { target: { value: 'Test User' } });

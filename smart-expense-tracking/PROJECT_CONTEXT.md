@@ -1,7 +1,7 @@
 # Project Context
 
 ## Project
-Smart Expense Tracking and Analytics System. Current stack: React + Vite frontend, Flask API, Flask-SQLAlchemy, MySQL via PyMySQL, and cookie-based authentication with CSRF protection.
+SpendWise — Smart Expense Tracking & Analytics. Current stack: React + Vite frontend, Flask API, Flask-SQLAlchemy, MySQL via PyMySQL, and cookie-based authentication with CSRF protection.
 
 ## Implemented Scope
 - **Phase 1:** Existing responsive UI, navigation, dashboard presentation data, and placeholder pages.

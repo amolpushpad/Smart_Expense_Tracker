@@ -1,4 +1,6 @@
-# Smart Expense Tracking — Frontend
+# SpendWise — Frontend
+
+**Smart Expense Tracking & Analytics**
 
 Phase 1 React foundation. This version contains UI, routing, frontend-only validation, and dummy dashboard data. Backend/database integrations are intentionally deferred.
 

@@ -22,7 +22,7 @@ import '../styles/dashboard.css';
 
 const currency = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 2 });
 const percent = new Intl.NumberFormat('en-IN', { maximumFractionDigits: 1 });
-const chartColors = ['#635bff', '#20a77a', '#f59e0b', '#2681d8', '#e05245', '#8e62cc', '#16a6b5', '#768398'];
+const chartColors = ['#7C3AED', '#20a77a', '#f59e0b', '#2681d8', '#e05245', '#8e62cc', '#16a6b5', '#768398'];
 
 function localIsoDate(value = new Date()) {
 	const date = new Date(value);
@@ -184,7 +184,7 @@ export default function Dashboard() {
 		{ title: `Income ${view === 'weekly' ? 'this week' : 'this month'}`, value: money(summary.total_income), icon: '↗', tone: 'green', detail: report.period.label },
 		{ title: `Expenses ${view === 'weekly' ? 'this week' : 'this month'}`, value: money(summary.total_expenses), icon: '↘', tone: 'red', detail: report.period.label },
 		{ title: 'Net cash flow', value: money(net), icon: '₹', tone: Number(net) < 0 ? 'red' : 'blue', detail: 'Income minus expenses' },
-		{ title: 'Budget utilization', value: budgetSummary?.budget_utilization === null || budgetSummary?.budget_utilization === undefined ? '—' : `${percent.format(Number(budgetSummary.budget_utilization))}%`, icon: '◫', tone: 'purple', detail: view === 'weekly' ? 'Selected week’s month-to-date budget status' : 'Actual monthly spending / budget' },
+		{ title: 'Monthly budget', value: Number(budgetSummary?.monthly_budget) > 0 ? money(budgetSummary.monthly_budget) : '—', icon: '◫', tone: 'purple', detail: budgetSummary?.budget_utilization === null || budgetSummary?.budget_utilization === undefined ? 'No monthly limit set' : `${percent.format(Number(budgetSummary.budget_utilization))}% utilized` },
 		{ title: 'Average daily spending', value: money(summary.average_daily_spending), icon: '⌁', tone: 'red', detail: 'Across selected period days' },
 		{ title: 'Previous-period spending', value: comparison?.label || '—', icon: '↔', tone: comparison?.tone === 'positive' ? 'green' : comparison?.tone === 'negative' ? 'red' : 'blue', detail: report.previous_period.expenses ? `${money(report.previous_period.expenses)} previously` : 'Comparison unavailable without previous spending' },
 	] : [];
@@ -221,16 +221,16 @@ export default function Dashboard() {
 			{loading && <p className="dashboard-refresh-note" role="status">Refreshing dashboard data...</p>}
 			<section className="dashboard-panels">
 				<article className="panel dashboard-panel dashboard-wide">
-					<div className="dashboard-panel-title"><div><h2>{view === 'weekly' ? 'Daily expense trend' : 'Spending trend across the month'}</h2><p>{view === 'weekly' ? 'Daily spending, Monday through Sunday.' : 'Actual daily totals for the selected calendar month.'}</p></div></div>
-					{trends.some(item => Number(item.expenses)) ? <div className="dashboard-chart"><ResponsiveContainer width="100%" height="100%"><LineChart data={trends} margin={{ top: 8, right: 14, left: 4, bottom: 4 }}>
+					<div className="dashboard-panel-title"><div><h2>Income and expenses over time</h2><p>{view === 'weekly' ? 'Daily totals, Monday through Sunday.' : 'Daily totals for the selected calendar month.'}</p></div></div>
+					{trends.some(item => Number(item.income) || Number(item.expenses)) ? <div className="dashboard-chart"><ResponsiveContainer width="100%" height="100%"><LineChart data={trends} margin={{ top: 8, right: 14, left: 4, bottom: 4 }}>
 						<CartesianGrid strokeDasharray="3 3" vertical={false} />
 						<XAxis dataKey="label" tick={{ fontSize: 10 }} interval="preserveStartEnd" />
 						<YAxis tick={{ fontSize: 11 }} tickFormatter={value => `₹${Number(value).toLocaleString('en-IN')}`} width={72} />
 						<Tooltip formatter={value => money(value)} />
 						<Legend />
-						<Line type="monotone" dataKey="expenses" name="Expenses" stroke="#e05245" strokeWidth={2.5} dot={trends.length <= 14 ? { r: 3 } : false} />
-						{view === 'monthly' && <Line type="monotone" dataKey="income" name="Income" stroke="#20a77a" strokeWidth={2} dot={trends.length <= 14 ? { r: 3 } : false} />}
-					</LineChart></ResponsiveContainer></div> : <div className="dashboard-empty">No expenses recorded in this period.</div>}
+						<Line type="linear" dataKey="expenses" name="Expenses" stroke="#e05245" strokeWidth={2.5} dot={trends.length <= 14 ? { r: 3 } : false} />
+						<Line type="linear" dataKey="income" name="Income" stroke="#20a77a" strokeWidth={2.5} dot={trends.length <= 14 ? { r: 3 } : false} />
+					</LineChart></ResponsiveContainer></div> : <div className="dashboard-empty">No income or expenses recorded in this period.</div>}
 				</article>
 				<article className="panel dashboard-panel">
 					<div className="dashboard-panel-title"><div><h2>Income vs expenses</h2><p>{view === 'weekly' ? 'Totals for this Monday–Sunday week.' : 'Daily cash flows in this calendar month.'}</p></div></div>

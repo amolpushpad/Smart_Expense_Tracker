@@ -24,12 +24,16 @@ function Summary({ report }) {
 	const summary = report.summary;
 	const change = report.previous_period;
 	const direction = Number(change.change_amount);
+	const savingsRate = Number(summary.total_income) > 0
+		? Number(summary.savings) / Number(summary.total_income) * 100
+		: null;
 	return <>
 		<section className="analytics-summary-grid">
 			<article className="analytics-summary-card"><span>Income</span><strong>{money(summary.total_income)}</strong></article>
 			<article className="analytics-summary-card"><span>Expenses</span><strong>{money(summary.total_expenses)}</strong></article>
 			<article className="analytics-summary-card"><span>Savings</span><strong className={Number(summary.savings) < 0 ? 'analytics-negative' : 'analytics-positive'}>{money(summary.savings)}</strong><small>Income minus expenses</small></article>
 			<article className="analytics-summary-card"><span>Balance for period</span><strong>{money(summary.balance)}</strong><small>Selected-period net total</small></article>
+			<article className="analytics-summary-card"><span>Savings rate</span><strong className={savingsRate !== null && savingsRate < 0 ? 'analytics-negative' : 'analytics-positive'}>{savingsRate === null ? '—' : `${percent.format(savingsRate)}%`}</strong><small>{savingsRate === null ? 'No income recorded in this period' : 'Savings ÷ income'}</small></article>
 		</section>
 		<div className={`analytics-comparison${direction > 0 ? ' increased' : direction < 0 ? ' decreased' : ''}`}>
 			<strong>Spending vs previous period</strong>
@@ -59,7 +63,7 @@ export default function Analytics() {
 			<Summary report={report} />
 			<section className="analytics-chart-grid">
 				<article className="panel analytics-panel analytics-wide">
-					<div className="analytics-panel-title"><div><h2>{report.period.type === 'weekly' ? 'Weekly income vs expenses' : 'Income and spending trend'}</h2><p>{report.series.granularity === 'day' ? 'Daily totals in the selected range.' : 'Monthly totals in the selected range.'}</p></div></div>
+					<div className="analytics-panel-title"><div><h2>Income and spending trend</h2><p>{report.series.granularity === 'day' ? 'Daily totals in the selected range.' : 'Monthly totals in the selected range.'}</p></div></div>
 					{report.series.items.some(item => Number(item.income) || Number(item.expenses)) ? <div className="analytics-chart">
 						<ResponsiveContainer width="100%" height="100%"><LineChart data={report.series.items} margin={{ top: 10, right: 15, left: 4, bottom: 6 }}>
 							<CartesianGrid strokeDasharray="3 3" vertical={false} />
@@ -67,10 +71,24 @@ export default function Analytics() {
 							<YAxis tick={{ fontSize: 10 }} tickFormatter={value => `₹${Number(value).toLocaleString('en-IN')}`} width={72} />
 							<Tooltip formatter={value => money(value)} />
 							<Legend />
-							<Line type="monotone" dataKey="income" name="Income" stroke="#188354" strokeWidth={2.5} dot={report.series.items.length <= 14} />
-							<Line type="monotone" dataKey="expenses" name="Expenses" stroke="#d35248" strokeWidth={2.5} dot={report.series.items.length <= 14} />
+							<Line type="linear" dataKey="income" name="Income" stroke="#188354" strokeWidth={2.5} dot={report.series.items.length <= 14} />
+							<Line type="linear" dataKey="expenses" name="Expenses" stroke="#d35248" strokeWidth={2.5} dot={report.series.items.length <= 14} />
 						</LineChart></ResponsiveContainer>
 					</div> : <div className="analytics-empty">No transactions in this date range.</div>}
+				</article>
+				<article className="panel analytics-panel">
+					<div className="analytics-panel-title"><div><h2>Income vs expenses</h2><p>Compare actual totals for each {report.series.granularity === 'day' ? 'day' : 'month'}.</p></div></div>
+					{report.series.items.some(item => Number(item.income) || Number(item.expenses)) ? <div className="analytics-chart">
+						<ResponsiveContainer width="100%" height="100%"><BarChart data={report.series.items} margin={{ top: 8, right: 8, left: 0, bottom: 4 }}>
+							<CartesianGrid strokeDasharray="3 3" vertical={false} />
+							<XAxis dataKey="label" tick={{ fontSize: 10 }} interval="preserveStartEnd" />
+							<YAxis tick={{ fontSize: 10 }} tickFormatter={value => `₹${Number(value).toLocaleString('en-IN')}`} width={72} />
+							<Tooltip formatter={value => money(value)} />
+							<Legend />
+							<Bar dataKey="income" name="Income" fill="#16A34A" radius={[4, 4, 0, 0]} />
+							<Bar dataKey="expenses" name="Expenses" fill="#DC2626" radius={[4, 4, 0, 0]} />
+						</BarChart></ResponsiveContainer>
+					</div> : <div className="analytics-empty">No income or expenses to compare in this date range.</div>}
 				</article>
 				<article className="panel analytics-panel">
 					<div className="analytics-panel-title"><div><h2>Category spending</h2><p>Total expense by category.</p></div></div>
@@ -80,7 +98,7 @@ export default function Analytics() {
 							<XAxis type="number" tick={{ fontSize: 10 }} tickFormatter={value => `₹${Number(value).toLocaleString('en-IN')}`} />
 							<YAxis type="category" dataKey="category_name" width={95} tick={{ fontSize: 10 }} />
 							<Tooltip formatter={value => money(value)} />
-							<Bar dataKey="amount" name="Expenses" fill="#635bff" radius={[0, 5, 5, 0]} />
+							<Bar dataKey="amount" name="Expenses" fill="#7C3AED" radius={[0, 5, 5, 0]} />
 						</BarChart></ResponsiveContainer>
 					</div> : <div className="analytics-empty">No expense transactions to break down.</div>}
 					{report.highest_spending_category && <p className="analytics-highlight">Highest spending: <strong>{report.highest_spending_category.category_name}</strong> · {money(report.highest_spending_category.amount)}</p>}

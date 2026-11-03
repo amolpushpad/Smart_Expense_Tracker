@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import ConfirmDialog from '../components/ConfirmDialog';
 import ExpenseForm from '../components/ExpenseForm';
 import PageHeader from '../components/PageHeader';
 import { categoriesApi, expensesApi, getApiErrorMessage, notifyDashboardDataChanged } from '../services/api';
@@ -23,6 +24,8 @@ export default function Expenses() {
 	const [notice, setNotice] = useState('');
 	const [editingExpense, setEditingExpense] = useState(null);
 	const [formOpen, setFormOpen] = useState(false);
+	const [pendingDelete, setPendingDelete] = useState(null);
+	const [deleting, setDeleting] = useState(false);
 
 	useEffect(() => {
 		let active = true;
@@ -92,18 +95,22 @@ export default function Expenses() {
 		}
 	};
 
-	const deleteExpense = async expense => {
-		const label = expense.description || expense.vendor || 'this expense';
-		if (!window.confirm(`Delete ${label}? This cannot be undone.`)) return;
+	const deleteExpense = async () => {
+		if (!pendingDelete) return;
+		setDeleting(true);
 		setError('');
 		try {
-			await expensesApi.remove(expense.expense_id);
+			await expensesApi.remove(pendingDelete.expense_id);
 			notifyDashboardDataChanged();
 			setNotice('Expense deleted.');
+			setPendingDelete(null);
 			if (expenses.length === 1 && page > 1) setPage(current => current - 1);
 			else setReloadKey(value => value + 1);
 		} catch (requestError) {
 			setError(getApiErrorMessage(requestError));
+			setPendingDelete(null);
+		} finally {
+			setDeleting(false);
 		}
 	};
 
@@ -138,7 +145,7 @@ export default function Expenses() {
 						<td><strong>{expense.description || 'Expense'}</strong><span className="expense-secondary">{expense.vendor || 'No vendor'}</span></td>
 						<td>{expense.category_name}</td><td>{expense.payment_method || '—'}</td>
 						<td className="amount-cell">{currency.format(Number(expense.amount))}</td>
-						<td><div className="expense-row-actions"><button className="text-button" type="button" onClick={() => openEdit(expense)}>Edit</button><button className="text-button destructive" type="button" onClick={() => deleteExpense(expense)}>Delete</button></div></td>
+						<td><div className="expense-row-actions"><button className="text-button" type="button" onClick={() => openEdit(expense)}>Edit</button><button className="text-button destructive" type="button" onClick={() => setPendingDelete(expense)}>Delete</button></div></td>
 					</tr>)}
 					{!loading && !error && expenses.length === 0 && <tr><td colSpan="6" className="table-message">No expenses match these filters.</td></tr>}
 				</tbody>
@@ -147,5 +154,6 @@ export default function Expenses() {
 		<div className="expense-pagination"><span>{pagination.total ? `Page ${page} of ${pagination.pages}` : 'No results'}</span><div><button className="secondary-button" type="button" disabled={page <= 1 || loading} onClick={() => setPage(current => current - 1)}>Previous</button><button className="secondary-button" type="button" disabled={page >= pagination.pages || loading} onClick={() => setPage(current => current + 1)}>Next</button></div></div>
 
 		{formOpen && <ExpenseForm expense={editingExpense} categories={categories} error={formError} saving={saving} onClose={() => setFormOpen(false)} onSave={saveExpense} />}
+		{pendingDelete && <ConfirmDialog title="Delete expense?" message={`Delete ${pendingDelete.description || pendingDelete.vendor || 'this expense'}? This cannot be undone.`} confirming={deleting} onCancel={() => setPendingDelete(null)} onConfirm={deleteExpense} />}
 	</section>;
 }

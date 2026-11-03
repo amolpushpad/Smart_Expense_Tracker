@@ -1,5 +1,5 @@
-import { lazy, Suspense } from 'react';
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { lazy, Suspense, useEffect, useState } from 'react';
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import Navbar from './components/Navbar';
 import Sidebar from './components/Sidebar';
@@ -14,6 +14,7 @@ import CorporateDashboard from './pages/CorporateDashboard';
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const Analytics = lazy(() => import('./pages/Analytics'));
 const Reports = lazy(() => import('./pages/Reports'));
+const DatasetDemo = lazy(() => import('./pages/DatasetDemo'));
 
 function PageLoader() {
   return <div className="auth-page" role="status">Loading page...</div>;
@@ -21,10 +22,17 @@ function PageLoader() {
 
 function ProtectedLayout() {
   const { user, loading } = useAuth();
+  const [navigationOpen, setNavigationOpen] = useState(false);
+  const location = useLocation();
+
+  useEffect(() => {
+    setNavigationOpen(false);
+  }, [location.pathname]);
+
   if (loading) return <div className="auth-page" role="status">Checking your session...</div>;
   if (!user) return <Navigate to="/login" replace />;
   const home = user.workspace_mode === 'corporate' ? '/corporate' : '/dashboard';
-  return <div className="app-shell"><Sidebar /><div className="main-area"><Navbar /><main className="page-content"><Routes>
+  return <div className="app-shell"><Sidebar open={navigationOpen} onClose={() => setNavigationOpen(false)} /><div className="main-area"><Navbar onMenuClick={() => setNavigationOpen(open => !open)} navigationOpen={navigationOpen} /><main className="page-content"><Routes>
     <Route path="/corporate" element={user.workspace_mode === 'corporate' ? <CorporateDashboard user={user} /> : <Navigate to={home} replace />} />
     <Route path="/dashboard" element={user.workspace_mode === 'personal' ? <Suspense fallback={<PageLoader />}><Dashboard /></Suspense> : <Navigate to={home} replace />} />
     <Route path="/expenses" element={user.workspace_mode === 'personal' ? <Expenses /> : <Navigate to={home} replace />} />
@@ -41,5 +49,5 @@ export default function App() {
   const { user, loading } = useAuth();
   if (loading) return <div className="auth-page" role="status">Checking your session...</div>;
   const home = user?.workspace_mode === 'corporate' ? '/corporate' : '/dashboard';
-  return <Routes><Route path="/login" element={user ? <Navigate to={home} replace /> : <Login />} /><Route path="/register" element={user ? <Navigate to={home} replace /> : <Register />} /><Route path="/*" element={<ProtectedLayout />} /></Routes>;
+  return <Routes><Route path="/login" element={user ? <Navigate to={home} replace /> : <Login />} /><Route path="/register" element={user ? <Navigate to={home} replace /> : <Register />} /><Route path="/demo" element={<Suspense fallback={<PageLoader />}><DatasetDemo /></Suspense>} /><Route path="/*" element={<ProtectedLayout />} /></Routes>;
 }

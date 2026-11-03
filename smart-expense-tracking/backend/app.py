@@ -3,6 +3,7 @@ import secrets
 from decimal import Decimal
 from pathlib import Path
 
+import click
 from dotenv import load_dotenv
 
 load_dotenv(Path(__file__).with_name(".env"))
@@ -36,6 +37,7 @@ def create_app(config_object=Config):
     from routes.category_routes import category_bp
     from routes.corporate_routes import corporate_bp
     from routes.dashboard_routes import dashboard_bp
+    from routes.demo_routes import demo_bp
     from routes.expense_routes import expense_bp
     from routes.income_routes import income_bp
     from routes.ml_routes import ml_bp
@@ -47,6 +49,7 @@ def create_app(config_object=Config):
     app.register_blueprint(category_bp, url_prefix="/api/categories")
     app.register_blueprint(corporate_bp, url_prefix="/api/corporate")
     app.register_blueprint(dashboard_bp, url_prefix="/api/dashboard")
+    app.register_blueprint(demo_bp, url_prefix="/api/demo")
     app.register_blueprint(expense_bp, url_prefix="/api/expenses")
     app.register_blueprint(income_bp, url_prefix="/api/income")
     app.register_blueprint(ml_bp, url_prefix="/api/ml")
@@ -85,6 +88,24 @@ def create_app(config_object=Config):
                 db.session.add(Category(category_name=name))
         db.session.commit()
         print("Database tables are ready and default categories are seeded.")
+
+    @app.cli.command("import-synthetic-snapshots")
+    @click.option("--csv", "csv_path", type=click.Path(exists=True, dir_okay=False, path_type=Path), required=True)
+    @click.option("--usd-inr-rate", type=click.FloatRange(min=0.0001), default=95, show_default=True)
+    def import_synthetic_snapshots(csv_path, usd_inr_rate):
+        """Import synthetic profile snapshots into their isolated table, converting USD to INR."""
+        from sqlalchemy.exc import SQLAlchemyError
+
+        from ml.import_synthetic_snapshots import import_snapshot_csv
+
+        try:
+            result = import_snapshot_csv(csv_path, usd_inr_rate)
+        except (ValueError, SQLAlchemyError) as error:
+            raise ClickException(str(error)) from error
+        if result["already_imported"]:
+            print(f"Dataset already imported ({result['records']} snapshots at ₹{result['rate']}/USD); no rows changed.")
+        else:
+            print(f"Imported {result['imported']} isolated synthetic snapshots at ₹{result['rate']}/USD.")
 
     @app.cli.command("migrate-profile")
     def migrate_profile():

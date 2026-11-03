@@ -1,4 +1,5 @@
-# SMART EXPENSE TRACKING AND ANALYTICS SYSTEM
+# SpendWise
+**Smart Expense Tracking & Analytics**
 ## Phases 1–8
 
 An authenticated personal-finance application for recording expenses and income, setting monthly budgets, reviewing real dashboard/analytics data, exporting reports, and managing an account profile. Financial features use the signed-in account’s MySQL records; the ML features are optional estimates and review suggestions, not financial advice.
@@ -65,6 +66,20 @@ Phase 1 provides the React/Vite interface. Phase 2 adds Flask, MySQL-backed acco
 - **Unusual-spending flags:** Same-user, same-category historical median/MAD thresholds; a flag is neither a fraud determination nor an automatic transaction change.
 - **Possible duplicates:** Conservative exact date/amount/category and normalized description/vendor comparisons. Results are review candidates only.
 - These are deliberately simple baselines, not financial advice. The application does not send data to a third-party model service.
+
+## Synthetic dataset demo
+
+The public `/demo` page displays aggregate INR summaries and a limited cross-sectional model based on the owner-provided `synthetic_personal_finance_dataset.csv`. The snapshots are imported only into the isolated `synthetic_finance_snapshots` table at the explicitly selected fixed rate of ₹95 per USD. This dataset remains separate from authenticated user income and expenses; it does not create transactions or feed the existing personal finance models.
+
+The single-profile snapshots support cohort-level aggregate statistics and an experimental held-out estimate of reported monthly expenses from profile attributes. The score is dataset-specific and is not a forecast or financial advice. The file has no transaction descriptions, merchants, expense categories, or per-user history, so it cannot train transaction categorization, duplicate detection, personal anomaly, or next-month spending models. Its original source URL and redistribution license were not provided; the raw CSV is not included in this repository.
+
+Dataset findings and suitability are documented in [backend/ml/datasets/DATASET_SOURCES.md](backend/ml/datasets/DATASET_SOURCES.md). After configuring the backend database, import the source file from `backend`:
+
+```powershell
+flask --app app import-synthetic-snapshots --csv "C:\path\to\synthetic_personal_finance_dataset.csv" --usd-inr-rate 95
+```
+
+The importer creates only its dedicated table, validates the CSV, converts USD amounts to INR, and is idempotent for the same file and rate. A different file or rate is rejected if the isolated table already contains data; resolve the existing import deliberately rather than deleting or replacing records blindly.
 
 ## Database setup and schema
 

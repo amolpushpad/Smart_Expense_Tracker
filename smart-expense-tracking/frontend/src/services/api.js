@@ -146,6 +146,12 @@ export const mlApi = {
 	duplicates: (params = {}, config = {}) => api.get('/ml/duplicates', { ...config, params }),
 };
 
+export const demoApi = {
+	analytics: () => api.get('/demo/analytics'),
+	modelEvaluation: () => api.get('/demo/ml/evaluation'),
+	estimateMonthlyExpenses: profile => api.post('/demo/ml/estimate-monthly-expenses', profile),
+};
+
 export const analyticsApi = {
 	get: (params, config = {}) => api.get('/analytics', { ...config, params }),
 	exportCsv: (params, config = {}) => api.get('/analytics/export.csv', {
