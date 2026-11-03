@@ -1,9 +1,16 @@
+from datetime import date
+
 from flask import Blueprint, jsonify, request, session
 from sqlalchemy.exc import IntegrityError
 
 from extensions import db
 from models import Budget, User
-from services.budget_service import budget_list_response, budget_query_for_user, budget_to_dict, validate_budget_payload
+from services.budget_service import (
+    budget_list_response,
+    budget_query_for_user,
+    budget_to_dict,
+    validate_budget_payload,
+)
 
 budget_bp = Blueprint("budgets", __name__)
 
@@ -27,7 +34,11 @@ def list_budgets():
     query, errors = budget_query_for_user(user_id, request.args)
     if errors:
         return jsonify(success=False, message="Invalid budget filters.", errors=errors), 400
-    return jsonify(success=True, data=budget_list_response(query))
+    period = request.args
+    today = date.today()
+    month = int(period["month"]) if "month" in period else today.month
+    year = int(period["year"]) if "year" in period else today.year
+    return jsonify(success=True, data=budget_list_response(query, month, year))
 
 
 @budget_bp.get("/<int:budget_id>")
@@ -80,6 +91,10 @@ def delete_budget(budget_id):
     user_id = _user_id()
     if not user_id:
         return jsonify(success=False, message="Authentication required."), 401
-    db.session.delete(_budget_or_404(budget_id, user_id))
+    budget = _budget_or_404(budget_id, user_id)
+    Budget.query.filter(
+        Budget.user_id == user_id,
+        Budget.category_id == budget.category_id,
+    ).delete(synchronize_session=False)
     db.session.commit()
     return jsonify(success=True, message="Budget deleted.")

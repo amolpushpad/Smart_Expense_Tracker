@@ -2,6 +2,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import UserAvatar from './UserAvatar';
 import BrandName from './BrandName';
+import ThemeSwitcher from './ThemeSwitcher';
 
 const pageTitles = {
 	'/dashboard': 'Personal overview',
@@ -26,6 +27,7 @@ export default function Navbar({ onMenuClick = () => {}, navigationOpen = false 
 			<span /><span /><span />
 		</button>
 		<div className="navbar-copy"><span className="navbar-eyebrow"><span className="navbar-brand-name"><BrandName /></span><span aria-hidden="true">/</span>{user?.workspace_mode === 'corporate' ? user.role : 'Personal workspace'}</span><h1>{pageTitles[location.pathname] || (user?.workspace_mode === 'corporate' ? 'Corporate workspace' : 'Personal overview')}</h1><p>Welcome back, {user?.name || 'User'}.</p></div>
+		<ThemeSwitcher />
 		<details className="profile-menu">
 			<summary aria-label="Open account menu"><UserAvatar user={user} /><span className="navbar-user-name">{user?.name || 'User'}</span><span className="profile-menu-chevron" aria-hidden="true">⌄</span></summary>
 			<div className="profile-menu-popover">

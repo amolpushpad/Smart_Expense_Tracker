@@ -39,9 +39,12 @@ export default function Sidebar({ open = false, onClose = () => {} }) {
 		{open && <button className="sidebar-backdrop" type="button" aria-label="Close navigation" onClick={onClose} />}
 		<aside className={`sidebar${open ? ' is-open' : ''}`} aria-label="Application sidebar">
 		<div className="brand">
-			<div className="brand-lockup sidebar-brand-lockup">
-				<BrandLogo className="sidebar-brand-logo" />
-				<BrandName className="sidebar-brand-name" />
+			<div className="sidebar-brand-content">
+				<div className="brand-lockup sidebar-brand-lockup">
+					<BrandLogo className="sidebar-brand-logo" />
+					<BrandName className="sidebar-brand-name" />
+				</div>
+				<span className="sidebar-tagline">Smart Expense Tracking &amp; Analytics</span>
 			</div>
 			<button className="sidebar-close" type="button" aria-label="Close navigation" onClick={onClose}>×</button>
 		</div>

@@ -1,13 +1,13 @@
 # Project Context
 
 ## Project
-SpendWise — Smart Expense Tracking & Analytics. Current stack: React + Vite frontend, Flask API, Flask-SQLAlchemy, MySQL via PyMySQL, and cookie-based authentication with CSRF protection.
+SpendWise — Smart Expense Tracking & Analytics. Current stack: React + Vite frontend with persistent Light/Dark/System themes, Flask API, Flask-SQLAlchemy, MySQL via PyMySQL, and cookie-based authentication with CSRF protection.
 
 ## Implemented Scope
 - **Phase 1:** Existing responsive UI, navigation, dashboard presentation data, and placeholder pages.
 - **Phase 2:** User registration/login/logout/session lookup, profile update API, hashed passwords, MySQL configuration, and safe user serialization.
 - **Phase 3:** Expense CRUD, server-side search/filter/sort/pagination, authenticated user ownership checks, predefined categories, and admin-only category mutations.
-- **Phase 4:** User-scoped income CRUD and date-range filtering; user-scoped overall and category budgets with month/year uniqueness and decimal spending/utilization calculations.
+- **Phase 4:** User-scoped income CRUD and date-range filtering; user-scoped recurring overall and category budgets with month/year versioning and decimal spending/utilization calculations.
 - **Phase 5:** User-scoped dashboard summary, recent transactions, six-month income/expense trends, category spending breakdown, and budget progress; Recharts visualizations and transparent rule-based insights.
 - Dashboard lifetime income/expenses/balance are distinct from the selected-month totals. Monthly savings rate is `(monthly income - monthly expenses) / monthly income`; average daily spending uses elapsed days for the current month and all days for completed months.
 - **Phase 6:** Authenticated weekly (Monday–Sunday), monthly, and custom-range analytics; previous-period comparisons, category and largest-transaction analysis; filtered transaction/summary CSV exports.

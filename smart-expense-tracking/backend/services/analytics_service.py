@@ -5,8 +5,8 @@ from decimal import Decimal
 from sqlalchemy import func
 
 from extensions import db
-from models import Budget, Category, Expense, Income
-from services.budget_service import budget_list_response
+from models import Category, Expense, Income
+from services.budget_service import budget_list_response, budget_query_for_period
 
 ZERO = Decimal("0.00")
 CENT = Decimal("0.01")
@@ -218,10 +218,8 @@ def _time_series(user_id, start, end, kind):
 def _monthly_budgets(user_id, period, expenses):
     if period["kind"] != "monthly":
         return None
-    query = Budget.query.filter_by(user_id=user_id, month=period["month"], year=period["year"]).order_by(
-        Budget.category_id.asc(), Budget.budget_id.asc()
-    )
-    budgets = budget_list_response(query)["budgets"]
+    query = budget_query_for_period(user_id, period["month"], period["year"])
+    budgets = budget_list_response(query, period["month"], period["year"])["budgets"]
     overall = next((budget for budget in budgets if budget["category_id"] is None), None)
     if overall:
         amount = Decimal(overall["amount"])

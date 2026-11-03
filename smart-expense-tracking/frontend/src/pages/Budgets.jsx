@@ -124,14 +124,14 @@ export default function Budgets() {
 		setFormOpen(true);
 	};
 	const budgetCard = budget => <article className={`phase4-budget-card${budget.over_budget ? ' is-over' : ''}`} key={budget.budget_id}>
-		<div className="phase4-budget-heading"><div><span className="phase4-eyebrow">{budget.category_id === null ? 'Overall budget' : 'Category budget'}</span><h3>{budget.category_name || 'All categories'}</h3></div><div className="phase4-card-actions"><button className="text-button" type="button" onClick={() => openEdit(budget)}>Edit</button><button className="text-button destructive" type="button" onClick={() => setPendingDelete(budget)}>Delete</button></div></div>
+		<div className="phase4-budget-heading"><div><span className="phase4-eyebrow">{budget.category_id === null ? 'Overall budget' : 'Category budget'} · Started {new Date(Number(budget.year), Number(budget.month) - 1, 1).toLocaleDateString(undefined, { month: 'short', year: 'numeric' })}</span><h3>{budget.category_name || 'All categories'}</h3></div><div className="phase4-card-actions"><button className="text-button" type="button" onClick={() => openEdit(budget)}>Edit</button><button className="text-button destructive" type="button" onClick={() => setPendingDelete(budget)}>Delete</button></div></div>
 		<div className="phase4-budget-numbers"><div><span>Budget</span><strong>{currency.format(Number(budget.amount))}</strong></div><div><span>Spent</span><strong>{currency.format(Number(budget.spent_amount))}</strong></div><div><span>{budget.over_budget ? 'Over by' : 'Remaining'}</span><strong className={budget.over_budget ? 'budget-negative' : ''}>{currency.format(Math.abs(Number(budget.remaining_amount)))}</strong></div></div>
 		<BudgetProgress budget={budget} />
 		{budget.over_budget && <p className="budget-warning" role="status">This budget has been exceeded. Your transactions have not been changed.</p>}
 	</article>;
 
 	return <section className="phase4-page">
-		<PageHeader title="Budgets" description="Set monthly spending limits and track actual expenses." />
+		<PageHeader title="Budgets" description="Set monthly limits that repeat from their start month until you delete them." />
 		<div className="phase4-toolbar">
 			<label className="phase4-period">Selected month<input type="month" value={period} onChange={event => { if (event.target.value) setPeriod(event.target.value); }} /></label>
 			<button className="primary-btn" type="button" onClick={openCreate}>＋ Add budget</button>
@@ -139,16 +139,16 @@ export default function Budgets() {
 		{notice && <div className="expense-alert success" role="status"><span>{notice}</span><button type="button" onClick={() => setNotice('')} aria-label="Dismiss notification">×</button></div>}
 		{error && <div className="expense-alert error" role="alert">{error}</div>}
 		<section className="phase4-summary-grid" aria-label="Monthly budget totals">
-			<div className="phase4-summary"><span>Total monthly budget</span><strong>{formatCents(totals.amount)}</strong><small>{overallBudget ? 'Overall limit (category limits shown separately)' : 'Sum of category limits'}</small></div>
+			<div className="phase4-summary"><span>Monthly budget</span><strong>{formatCents(totals.amount)}</strong><small>{overallBudget ? 'Overall limit (category limits shown separately)' : 'Sum of category limits'}</small></div>
 			<div className="phase4-summary"><span>Amount spent</span><strong>{formatCents(totals.spent)}</strong><small>For the selected month</small></div>
 			<div className="phase4-summary"><span>Remaining budget</span><strong className={totals.remaining < 0n ? 'budget-negative' : ''}>{formatCents(totals.remaining)}</strong><small>{totals.remaining < 0n ? 'Over budget' : 'Available to spend'}</small></div>
 			<div className="phase4-summary"><span>Utilization</span><strong>{utilization === null ? '—' : `${utilization.toFixed(2)}%`}</strong><small>{utilization === null ? 'Create a budget to track utilization' : 'Actual spending ÷ budget'}</small></div>
 		</section>
-		{loading ? <div className="phase4-empty" role="status">Loading budgets...</div> : !error && budgets.length === 0 ? <div className="phase4-empty"><h3>No budgets for this month</h3><p>Create an overall monthly budget or set limits for individual categories.</p></div> : !error && <>
+		{loading ? <div className="phase4-empty" role="status">Loading budgets...</div> : !error && budgets.length === 0 ? <div className="phase4-empty"><h3>No active budgets for this month</h3><p>Create an overall monthly budget or set limits for individual categories. Each budget repeats monthly from its start month.</p></div> : !error && <>
 			{overallBudget && <section className="phase4-budget-section"><h2>Overall monthly budget</h2>{budgetCard(overallBudget)}</section>}
 			<section className="phase4-budget-section"><h2>Category-specific budgets</h2>{categoryBudgets.length ? <div className="phase4-budget-list">{categoryBudgets.map(budgetCard)}</div> : <p className="phase4-muted">No category-specific budgets for this month.</p>}</section>
 		</>}
 		{formOpen && <BudgetForm budget={editingBudget} categories={categories} month={month} year={year} error={formError} saving={saving} onClose={() => setFormOpen(false)} onSave={saveBudget} />}
-		{pendingDelete && <ConfirmDialog title="Delete budget?" message={`Delete the budget for ${pendingDelete.category_name || 'all categories'}? Existing transactions will remain unchanged.`} confirming={deleting} onCancel={() => setPendingDelete(null)} onConfirm={deleteBudget} />}
+		{pendingDelete && <ConfirmDialog title="Delete recurring budget?" message={`Delete the recurring ${pendingDelete.category_name ? `budget for ${pendingDelete.category_name}` : 'overall budget'}, including all previous versions and scheduled changes? Existing transactions will remain unchanged.`} confirming={deleting} onCancel={() => setPendingDelete(null)} onConfirm={deleteBudget} />}
 	</section>;
 }

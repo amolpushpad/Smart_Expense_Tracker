@@ -3,6 +3,7 @@ import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import Navbar from './components/Navbar';
 import Sidebar from './components/Sidebar';
+import ThemeSwitcher from './components/ThemeSwitcher';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Expenses from './pages/Expenses';
@@ -47,7 +48,9 @@ function ProtectedLayout() {
 
 export default function App() {
   const { user, loading } = useAuth();
+  const location = useLocation();
   if (loading) return <div className="auth-page" role="status">Checking your session...</div>;
   const home = user?.workspace_mode === 'corporate' ? '/corporate' : '/dashboard';
-  return <Routes><Route path="/login" element={user ? <Navigate to={home} replace /> : <Login />} /><Route path="/register" element={user ? <Navigate to={home} replace /> : <Register />} /><Route path="/demo" element={<Suspense fallback={<PageLoader />}><DatasetDemo /></Suspense>} /><Route path="/*" element={<ProtectedLayout />} /></Routes>;
+  const publicPage = ['/login', '/register', '/demo'].includes(location.pathname);
+  return <>{publicPage && <ThemeSwitcher className="theme-switcher-floating" />}<Routes><Route path="/login" element={user ? <Navigate to={home} replace /> : <Login />} /><Route path="/register" element={user ? <Navigate to={home} replace /> : <Register />} /><Route path="/demo" element={<Suspense fallback={<PageLoader />}><DatasetDemo /></Suspense>} /><Route path="/*" element={<ProtectedLayout />} /></Routes></>;
 }

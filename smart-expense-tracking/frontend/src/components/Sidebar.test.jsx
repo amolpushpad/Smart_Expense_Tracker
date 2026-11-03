@@ -46,6 +46,7 @@ describe('SpendWise sidebar', () => {
 			expect.stringContaining('spendwise-logo'),
 		);
 		expect(container.querySelector('.sidebar-brand-name')).toHaveTextContent('SpendWise');
+		expect(screen.getByText('Smart Expense Tracking & Analytics')).toBeInTheDocument();
 		for (const section of ['Dashboard', 'Expenses', 'Income', 'Budgets', 'Analytics', 'Reports', 'Profile']) {
 			fireEvent.click(screen.getByRole('link', { name: section }));
 			expect(screen.getByText(`${section} route`)).toBeInTheDocument();

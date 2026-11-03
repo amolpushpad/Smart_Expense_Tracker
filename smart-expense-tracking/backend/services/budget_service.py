@@ -69,7 +69,6 @@ def validate_budget_payload(payload, partial=False):
 
 
 def budget_query_for_user(user_id, params):
-    query = Budget.query.filter(Budget.user_id == user_id)
     errors = {}
     period = {}
     for parameter, lower, upper in (("month", 1, 12), ("year", 1900, 9999)):
@@ -81,16 +80,37 @@ def budget_query_for_user(user_id, params):
                 period[parameter] = int(raw_value)
     if bool(period) and len(period) != 2:
         errors["period"] = "Month and year must be provided together."
-    if len(period) == 2:
-        query = query.filter(Budget.month == period["month"], Budget.year == period["year"])
     if errors:
         return None, errors
-    return query.order_by(Budget.category_id.asc(), Budget.budget_id.asc()), None
+    if not period:
+        today = date.today()
+        period = {"month": today.month, "year": today.year}
+    return budget_query_for_period(user_id, period["month"], period["year"]), None
 
 
-def budget_to_dict(budget):
-    first_day = date(budget.year, budget.month, 1)
-    last_day = date(budget.year, budget.month, monthrange(budget.year, budget.month)[1])
+def budget_query_for_period(user_id, month, year):
+    period_index = year * 12 + month
+    latest_starts = db.session.query(
+        Budget.category_scope,
+        func.max(Budget.year * 12 + Budget.month).label("start_period"),
+    ).filter(
+        Budget.user_id == user_id,
+        Budget.year * 12 + Budget.month <= period_index,
+    ).group_by(Budget.category_scope).subquery()
+    return Budget.query.join(
+        latest_starts,
+        (Budget.category_scope == latest_starts.c.category_scope)
+        & (Budget.year * 12 + Budget.month == latest_starts.c.start_period),
+    ).filter(
+        Budget.user_id == user_id,
+    ).order_by(Budget.category_id.asc(), Budget.budget_id.asc())
+
+
+def budget_to_dict(budget, month=None, year=None):
+    month = budget.month if month is None else month
+    year = budget.year if year is None else year
+    first_day = date(year, month, 1)
+    last_day = date(year, month, monthrange(year, month)[1])
     spending = db.session.query(func.coalesce(func.sum(Expense.amount), 0)).filter(
         Expense.user_id == budget.user_id,
         Expense.date >= first_day,
@@ -102,6 +122,6 @@ def budget_to_dict(budget):
     return budget.to_dict(amount)
 
 
-def budget_list_response(query):
+def budget_list_response(query, month=None, year=None):
     records = query.all()
-    return {"budgets": [budget_to_dict(budget) for budget in records]}
+    return {"budgets": [budget_to_dict(budget, month, year) for budget in records]}

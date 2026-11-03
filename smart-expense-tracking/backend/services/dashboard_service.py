@@ -5,8 +5,8 @@ from decimal import Decimal
 from sqlalchemy import func
 
 from extensions import db
-from models import Budget, Category, Expense, Income
-from services.budget_service import budget_list_response
+from models import Category, Expense, Income
+from services.budget_service import budget_list_response, budget_query_for_period
 
 ZERO = Decimal("0.00")
 
@@ -40,7 +40,7 @@ def _income_sum(user_id, start=None, end=None):
 
 
 def _monthly_budget(user_id, month, year, start, end, month_expenses):
-    budgets = Budget.query.filter_by(user_id=user_id, month=month, year=year).all()
+    budgets = budget_query_for_period(user_id, month, year).all()
     overall = next((budget for budget in budgets if budget.category_id is None), None)
     if overall:
         return overall.amount, month_expenses
@@ -208,7 +208,5 @@ def category_breakdown(user_id, month, year):
 
 
 def budget_progress(user_id, month, year):
-    query = Budget.query.filter_by(user_id=user_id, month=month, year=year).order_by(
-        Budget.category_id.asc(), Budget.budget_id.asc()
-    )
-    return budget_list_response(query)["budgets"]
+    query = budget_query_for_period(user_id, month, year)
+    return budget_list_response(query, month, year)["budgets"]

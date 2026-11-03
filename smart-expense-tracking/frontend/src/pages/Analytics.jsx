@@ -71,8 +71,8 @@ export default function Analytics() {
 							<YAxis tick={{ fontSize: 10 }} tickFormatter={value => `₹${Number(value).toLocaleString('en-IN')}`} width={72} />
 							<Tooltip formatter={value => money(value)} />
 							<Legend />
-							<Line type="linear" dataKey="income" name="Income" stroke="#188354" strokeWidth={2.5} dot={report.series.items.length <= 14} />
-							<Line type="linear" dataKey="expenses" name="Expenses" stroke="#d35248" strokeWidth={2.5} dot={report.series.items.length <= 14} />
+							<Line type="linear" dataKey="income" name="Income" stroke="var(--chart-income)" strokeWidth={2.5} dot={report.series.items.length <= 14} />
+							<Line type="linear" dataKey="expenses" name="Expenses" stroke="var(--chart-expense)" strokeWidth={2.5} dot={report.series.items.length <= 14} />
 						</LineChart></ResponsiveContainer>
 					</div> : <div className="analytics-empty">No transactions in this date range.</div>}
 				</article>
@@ -85,8 +85,8 @@ export default function Analytics() {
 							<YAxis tick={{ fontSize: 10 }} tickFormatter={value => `₹${Number(value).toLocaleString('en-IN')}`} width={72} />
 							<Tooltip formatter={value => money(value)} />
 							<Legend />
-							<Bar dataKey="income" name="Income" fill="#16A34A" radius={[4, 4, 0, 0]} />
-							<Bar dataKey="expenses" name="Expenses" fill="#DC2626" radius={[4, 4, 0, 0]} />
+							<Bar dataKey="income" name="Income" fill="var(--chart-income)" radius={[4, 4, 0, 0]} />
+							<Bar dataKey="expenses" name="Expenses" fill="var(--chart-expense)" radius={[4, 4, 0, 0]} />
 						</BarChart></ResponsiveContainer>
 					</div> : <div className="analytics-empty">No income or expenses to compare in this date range.</div>}
 				</article>
@@ -98,7 +98,7 @@ export default function Analytics() {
 							<XAxis type="number" tick={{ fontSize: 10 }} tickFormatter={value => `₹${Number(value).toLocaleString('en-IN')}`} />
 							<YAxis type="category" dataKey="category_name" width={95} tick={{ fontSize: 10 }} />
 							<Tooltip formatter={value => money(value)} />
-							<Bar dataKey="amount" name="Expenses" fill="#7C3AED" radius={[0, 5, 5, 0]} />
+							<Bar dataKey="amount" name="Expenses" fill="var(--chart-primary)" radius={[0, 5, 5, 0]} />
 						</BarChart></ResponsiveContainer>
 					</div> : <div className="analytics-empty">No expense transactions to break down.</div>}
 					{report.highest_spending_category && <p className="analytics-highlight">Highest spending: <strong>{report.highest_spending_category.category_name}</strong> · {money(report.highest_spending_category.amount)}</p>}

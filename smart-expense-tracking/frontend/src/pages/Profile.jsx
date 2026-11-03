@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { getApiErrorMessage, profileApi } from '../services/api';
 import PageHeader from '../components/PageHeader';
+import ThemeSwitcher from '../components/ThemeSwitcher';
 import UserAvatar from '../components/UserAvatar';
 import '../styles/profile.css';
 
@@ -209,6 +210,10 @@ export default function Profile() {
 				<h3>Account information</h3>
 				<dl><div><dt>Account created</dt><dd>{formatCreatedAt(createdAt)}</dd></div><div><dt>Email</dt><dd>{profile.email}</dd></div></dl>
 				<p className="profile-muted">Email verification is not currently part of this application.</p>
+				<div className="profile-appearance">
+					<div><h4>Appearance</h4><p className="profile-muted">Choose Light, Dark, or follow your system setting.</p></div>
+					<ThemeSwitcher />
+				</div>
 			</section>
 
 			<section className="profile-card profile-security-card" id="security">

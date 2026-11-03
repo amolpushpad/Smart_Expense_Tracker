@@ -15,14 +15,14 @@ import {
 	XAxis,
 	YAxis,
 } from 'recharts';
-import PageHeader from '../components/PageHeader';
 import SummaryCard from '../components/SummaryCard';
+import { useAuth } from '../context/AuthContext';
 import { dashboardApi, getApiErrorMessage } from '../services/api';
 import '../styles/dashboard.css';
 
 const currency = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 2 });
 const percent = new Intl.NumberFormat('en-IN', { maximumFractionDigits: 1 });
-const chartColors = ['#7C3AED', '#20a77a', '#f59e0b', '#2681d8', '#e05245', '#8e62cc', '#16a6b5', '#768398'];
+const chartColors = Array.from({ length: 8 }, (_, index) => `var(--chart-category-${index + 1})`);
 
 function localIsoDate(value = new Date()) {
 	const date = new Date(value);
@@ -59,7 +59,8 @@ function ProgressBudget({ budget }) {
 function DashboardSkeleton() {
 	return <div className="dashboard-skeleton" role="status" aria-label="Loading dashboard">
 		<span className="visually-hidden">Loading dashboard data...</span>
-		<div className="summary-grid">{Array.from({ length: 6 }, (_, index) => <SummaryCard key={index} loading title="Loading" />)}</div>
+		<div className="summary-grid dashboard-summary-grid">{Array.from({ length: 4 }, (_, index) => <SummaryCard key={index} loading title="Loading" />)}</div>
+		<div className="dashboard-secondary-grid">{Array.from({ length: 2 }, (_, index) => <div className="dashboard-secondary-skeleton" key={index} />)}</div>
 		<div className="dashboard-panels">{Array.from({ length: 4 }, (_, index) => <div className="dashboard-panel-skeleton" key={index} />)}</div>
 	</div>;
 }
@@ -119,6 +120,7 @@ function InsightPanel({ dashboard, view }) {
 }
 
 export default function Dashboard() {
+	const { user } = useAuth();
 	const [view, setView] = useState('monthly');
 	const [monthPeriod, setMonthPeriod] = useState(currentMonth);
 	const [weekDate, setWeekDate] = useState(localIsoDate);
@@ -128,6 +130,7 @@ export default function Dashboard() {
 	const [error, setError] = useState('');
 	const [reloadKey, setReloadKey] = useState(0);
 	const [refreshLabel, setRefreshLabel] = useState('Refresh');
+	const firstName = user?.name?.trim().split(/\s+/)[0] || 'there';
 	const anchorDate = view === 'weekly' ? weekDate : `${monthPeriod}-01`;
 	const [year, month] = anchorDate.slice(0, 7).split('-');
 
@@ -194,20 +197,52 @@ export default function Dashboard() {
 		setDashboard(null);
 		setWeekDate(localIsoDate(date));
 	};
+	const monthNavigation = offset => {
+		const [selectedYear, selectedMonth] = monthPeriod.split('-').map(Number);
+		const date = new Date(selectedYear, selectedMonth - 1 + offset, 1);
+		setDashboard(null);
+		setMonthPeriod(`${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`);
+	};
+	const goToCurrentPeriod = () => {
+		setDashboard(null);
+		if (view === 'weekly') setWeekDate(localIsoDate());
+		else setMonthPeriod(currentMonth());
+	};
 
 	return <section className="dashboard-page">
-		<PageHeader title="Dashboard" description="Weekly and monthly views of your financial activity." />
-		<div className="dashboard-toolbar dashboard-analytics-toolbar">
+		<header className="dashboard-hero">
+			<div className="dashboard-hero-copy">
+				<span className="dashboard-eyebrow">YOUR FINANCIAL OVERVIEW</span>
+				<h1>Welcome back, {firstName}</h1>
+				<p>See where your money is going and keep your plans on track.</p>
+			</div>
+			<nav className="dashboard-quick-actions" aria-label="Quick actions">
+				<Link className="dashboard-action dashboard-action-primary" to="/expenses">+ Add expense</Link>
+				<Link className="dashboard-action dashboard-action-secondary" to="/income">+ Add income</Link>
+			</nav>
+		</header>
+		<div className="dashboard-controls-card">
 			<div className="dashboard-period-tabs" role="tablist" aria-label="Dashboard analytics period">
 				<button type="button" role="tab" aria-selected={view === 'weekly'} className={view === 'weekly' ? 'active' : ''} onClick={() => { setDashboard(null); setView('weekly'); }}>Weekly</button>
 				<button type="button" role="tab" aria-selected={view === 'monthly'} className={view === 'monthly' ? 'active' : ''} onClick={() => { setDashboard(null); setView('monthly'); }}>Monthly</button>
 			</div>
-			{view === 'weekly' ? <div className="dashboard-period-picker">
-				<button type="button" className="secondary-button" aria-label="Previous week" onClick={() => weekNavigation(-1)}>←</button>
-				<label>Week containing<input type="date" value={weekDate} onChange={event => { if (event.target.value) { setDashboard(null); setWeekDate(event.target.value); } }} /></label>
-				<button type="button" className="secondary-button" aria-label="Next week" onClick={() => weekNavigation(1)}>→</button>
-			</div> : <label className="dashboard-month-picker">Month<input type="month" value={monthPeriod} onChange={event => { if (event.target.value) { setDashboard(null); setMonthPeriod(event.target.value); } }} /></label>}
-			<button type="button" className="secondary-btn dashboard-refresh" onClick={() => load({ background: Boolean(dashboard) })} disabled={refreshing}>{refreshing ? 'Refreshing...' : refreshLabel}</button>
+			<div className="dashboard-period-navigation">
+				<button type="button" className="dashboard-period-arrow" aria-label={view === 'weekly' ? 'Previous week' : 'Previous month'} onClick={() => view === 'weekly' ? weekNavigation(-1) : monthNavigation(-1)}>‹</button>
+				<label className="dashboard-period-picker">
+					<span>{view === 'weekly' ? 'Week containing' : 'Showing month'}</span>
+					<input type={view === 'weekly' ? 'date' : 'month'} aria-label={view === 'weekly' ? 'Week containing date' : 'Select month'} value={view === 'weekly' ? weekDate : monthPeriod} onChange={event => {
+						if (!event.target.value) return;
+						setDashboard(null);
+						if (view === 'weekly') setWeekDate(event.target.value);
+						else setMonthPeriod(event.target.value);
+					}} />
+				</label>
+				<button type="button" className="dashboard-period-arrow" aria-label={view === 'weekly' ? 'Next week' : 'Next month'} onClick={() => view === 'weekly' ? weekNavigation(1) : monthNavigation(1)}>›</button>
+			</div>
+			<button type="button" className="dashboard-current-period" onClick={goToCurrentPeriod}>{view === 'weekly' ? 'This week' : 'This month'}</button>
+			<button type="button" className="secondary-btn dashboard-refresh" onClick={() => load({ background: Boolean(dashboard) })} disabled={refreshing}>
+				<span aria-hidden="true">↻</span>{refreshing ? 'Refreshing...' : refreshLabel}
+			</button>
 		</div>
 		{error && <div className="dashboard-error" role="alert"><span>{error}</span><button type="button" onClick={() => load({ background: Boolean(dashboard) })}>Retry</button></div>}
 		{loading && !dashboard ? <DashboardSkeleton /> : dashboard && report && <>
@@ -216,7 +251,13 @@ export default function Dashboard() {
 				{loading && <span role="status">Updating...</span>}
 			</div>
 			<section className="summary-grid dashboard-summary-grid" aria-label={`${view} financial summary`}>
-				{cards.map(card => <SummaryCard key={card.title} {...card} />)}
+				{cards.slice(0, 4).map(card => <SummaryCard key={card.title} {...card} />)}
+			</section>
+			<section className="dashboard-secondary-grid" aria-label="Spending details">
+				{cards.slice(4).map(card => <article className="dashboard-secondary-stat" key={card.title}>
+					<div><span>{card.title}</span><strong>{card.value}</strong></div>
+					<small>{card.detail}</small>
+				</article>)}
 			</section>
 			{loading && <p className="dashboard-refresh-note" role="status">Refreshing dashboard data...</p>}
 			<section className="dashboard-panels">
@@ -228,8 +269,8 @@ export default function Dashboard() {
 						<YAxis tick={{ fontSize: 11 }} tickFormatter={value => `₹${Number(value).toLocaleString('en-IN')}`} width={72} />
 						<Tooltip formatter={value => money(value)} />
 						<Legend />
-						<Line type="linear" dataKey="expenses" name="Expenses" stroke="#e05245" strokeWidth={2.5} dot={trends.length <= 14 ? { r: 3 } : false} />
-						<Line type="linear" dataKey="income" name="Income" stroke="#20a77a" strokeWidth={2.5} dot={trends.length <= 14 ? { r: 3 } : false} />
+						<Line type="linear" dataKey="expenses" name="Expenses" stroke="var(--chart-expense)" strokeWidth={2.5} dot={trends.length <= 14 ? { r: 3 } : false} />
+						<Line type="linear" dataKey="income" name="Income" stroke="var(--chart-income)" strokeWidth={2.5} dot={trends.length <= 14 ? { r: 3 } : false} />
 					</LineChart></ResponsiveContainer></div> : <div className="dashboard-empty">No income or expenses recorded in this period.</div>}
 				</article>
 				<article className="panel dashboard-panel">
@@ -240,8 +281,8 @@ export default function Dashboard() {
 						<YAxis tick={{ fontSize: 10 }} tickFormatter={value => `₹${Number(value).toLocaleString('en-IN')}`} width={67} />
 						<Tooltip formatter={value => money(value)} />
 						<Legend />
-						<Bar dataKey="income" name="Income" fill="#20a77a" radius={[4, 4, 0, 0]} />
-						<Bar dataKey="expenses" name="Expenses" fill="#e05245" radius={[4, 4, 0, 0]} />
+						<Bar dataKey="income" name="Income" fill="var(--chart-income)" radius={[4, 4, 0, 0]} />
+						<Bar dataKey="expenses" name="Expenses" fill="var(--chart-expense)" radius={[4, 4, 0, 0]} />
 					</BarChart></ResponsiveContainer></div> : <div className="dashboard-empty">No income or expenses recorded in this period.</div>}
 				</article>
 				<article className="panel dashboard-panel">

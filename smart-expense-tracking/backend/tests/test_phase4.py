@@ -162,11 +162,56 @@ def test_budget_crud_unique_overall_and_category_periods(client, app):
     )
     assert updated.status_code == 200
     assert updated.json["data"]["budget"]["amount"] == "150.25"
-    assert client.get("/api/budgets?month=2&year=2026").json["data"]["budgets"] == []
+    february = client.get("/api/budgets?month=2&year=2026").json["data"]["budgets"]
+    assert {budget["amount"] for budget in february} == {"200.00", "150.25"}
     assert client.delete(f"/api/budgets/{budget_id}", headers={"X-CSRF-Token": token}).status_code == 200
     assert client.get(f"/api/budgets/{budget_id}").status_code == 404
     with app.app_context():
         assert Budget.query.count() == 1
+
+
+def test_budgets_recur_across_years_and_delete_all_versions(client, app):
+    token = authenticated(client)
+    category_id = add_category(app)
+    november = client.post(
+        "/api/budgets",
+        json={"amount": "80.00", "category_id": category_id, "month": 11, "year": 2025},
+        headers={"X-CSRF-Token": token},
+    )
+    budget_id = november.json["data"]["budget"]["budget_id"]
+    december = client.post(
+        "/api/budgets",
+        json={"amount": "100.00", "category_id": category_id, "month": 12, "year": 2025},
+        headers={"X-CSRF-Token": token},
+    )
+    assert november.status_code == december.status_code == 201
+
+    assert post_expense(client, token, category_id, "10.00", "2025-11-15").status_code == 201
+    assert post_expense(client, token, category_id, "20.00", "2025-12-15").status_code == 201
+    assert post_expense(client, token, category_id, "30.00", "2026-01-15").status_code == 201
+
+    november_budget = client.get("/api/budgets?month=11&year=2025").json["data"]["budgets"]
+    december_budget = client.get("/api/budgets?month=12&year=2025").json["data"]["budgets"]
+    january_budget = client.get("/api/budgets?month=1&year=2026").json["data"]["budgets"]
+    assert [(row["amount"], row["spent_amount"]) for row in november_budget] == [("80.00", "10.00")]
+    assert [(row["amount"], row["spent_amount"]) for row in december_budget] == [("100.00", "20.00")]
+    assert [(row["amount"], row["spent_amount"]) for row in january_budget] == [("100.00", "30.00")]
+
+    dashboard = client.get("/api/dashboard/summary?month=1&year=2026")
+    assert dashboard.json["data"]["summary"]["monthly_budget"] == "100.00"
+    progress = client.get("/api/dashboard/budget-progress?month=1&year=2026")
+    assert [(row["amount"], row["spent_amount"]) for row in progress.json["data"]["budgets"]] == [
+        ("100.00", "30.00")
+    ]
+    analytics = client.get("/api/analytics?period=monthly&month=1&year=2026")
+    assert analytics.json["data"]["budget"]["monthly_budget"] == "100.00"
+    assert analytics.json["data"]["budget"]["remaining_budget"] == "70.00"
+
+    assert client.delete(f"/api/budgets/{budget_id}", headers={"X-CSRF-Token": token}).status_code == 200
+    assert client.get("/api/budgets?month=1&year=2026").json["data"]["budgets"] == []
+    assert client.get(f"/api/budgets/{december.json['data']['budget']['budget_id']}").status_code == 404
+    with app.app_context():
+        assert Budget.query.count() == 0
 
 
 @pytest.mark.parametrize(

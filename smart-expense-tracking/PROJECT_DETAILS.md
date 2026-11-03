@@ -14,6 +14,7 @@ SpendWise is a web application for tracking personal finances and managing organ
 | API security | CSRF token required for state-changing requests; credentialed CORS with configured origins |
 | Currency and precision | Monetary values use decimal database columns and decimal-formatted API values |
 | Main product areas | Personal finance, corporate expenses, analytics/reports, profile management, synthetic dataset demo |
+| Appearance | Purple-branded Light, Dark, and System themes with persistent user preference |
 
 ## Features
 
@@ -22,11 +23,12 @@ SpendWise is a web application for tracking personal finances and managing organ
 - Register, sign in, sign out, and check the active session.
 - Create, view, edit, filter, sort, search, paginate, and delete personal expenses.
 - Manage income records with inclusive date-range filtering.
-- Create overall or category-specific monthly budgets and review spending, remaining balance, utilization, and over-budget status.
+- Create overall or category-specific monthly budgets that repeat from their start month until deleted; later budget versions take effect from their own start month.
 - Review a dashboard with lifetime totals, selected-month figures, recent transactions, six-month trends, category breakdowns, budget progress, and insights.
 - Analyze weekly (Monday–Sunday), monthly, or custom inclusive date ranges, with prior-period comparisons, category totals, and largest transactions.
 - Export filtered analytics as CSV, including corresponding summary totals.
 - Update profile details, upload/remove a profile photo, change a password, and change an email after confirming the current password.
+- Choose Light, Dark, or System appearance from the application navbar, Profile settings, and public authentication/demo screens; the choice is stored locally and system preference changes are followed.
 - Use predefined expense categories. Category changes are restricted to administrator emails configured by the operator.
 
 ### Corporate workspace
@@ -81,7 +83,7 @@ The backend registers blueprints for authentication, analytics, budgets, categor
 
 Personal data is associated with its owner. Core tables are `user`, `category`, `expenses`, `income`, and `budgets`. Corporate data is stored separately in `corporate_organizations`, `corporate_departments`, `corporate_memberships`, and `corporate_expenses`. Synthetic demo snapshots are isolated in `synthetic_finance_snapshots`.
 
-Expense, income, and budget monetary values use `DECIMAL(10,2)`/SQLAlchemy `Numeric(10,2)`; corporate expenses use `Numeric(12,2)`. Authoritative financial totals use database `SUM` and Python `Decimal`, rather than floating-point or Pandas/NumPy aggregation. A personal budget is unique for a user, month, year, and category scope; the scope also distinguishes the overall budget from category budgets.
+Expense, income, and budget monetary values use `DECIMAL(10,2)`/SQLAlchemy `Numeric(10,2)`; corporate expenses use `Numeric(12,2)`. Authoritative financial totals use database `SUM` and Python `Decimal`, rather than floating-point or Pandas/NumPy aggregation. A personal budget version is unique for a user, month, year, and category scope; the scope also distinguishes the overall budget from category budgets. The latest version whose start month is not after the viewed month is active. Deleting a budget removes all versions in that scope so an older recurring version cannot unexpectedly resume.
 
 Dashboard lifetime income, expenses, and balance are separate from selected-month totals. Monthly savings rate is `(monthly income - monthly expenses) / monthly income`. Average daily spending divides by elapsed days for the current month or all days in a completed month.
 

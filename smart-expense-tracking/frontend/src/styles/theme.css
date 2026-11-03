@@ -1,0 +1,1274 @@
+:root {
+	color-scheme: light;
+	--color-primary: #7c3aed;
+	--color-primary-dark: #4c1d95;
+	--color-deep-navy: #21143d;
+	--color-light-purple: #ede9fe;
+	--color-soft-lavender: #f5f3ff;
+	--color-white: #fff;
+	--color-text: #211b35;
+	--color-secondary-text: #77718a;
+	--color-border: #e5e0f0;
+	--color-success: #16a34a;
+	--color-danger: #dc2626;
+	--color-warning: #f59e0b;
+	--color-page-background: #f8f7fb;
+	--color-surface-secondary: #f5f3fa;
+	--color-surface-elevated: #fff;
+	--color-surface-hover: #f3effa;
+	--chart-income: #16a34a;
+	--chart-expense: #dc2626;
+	--chart-primary: #7c3aed;
+	--chart-secondary: #a78bfa;
+	--chart-category-1: #7c3aed;
+	--chart-category-2: #20a77a;
+	--chart-category-3: #f59e0b;
+	--chart-category-4: #2681d8;
+	--chart-category-5: #e05245;
+	--chart-category-6: #8e62cc;
+	--chart-category-7: #16a6b5;
+	--chart-category-8: #768398;
+	--shadow-card: 0 8px 26px rgba(33, 20, 61, .045);
+	--shadow-popover: 0 18px 48px rgba(33, 20, 61, .16);
+}
+
+[data-theme="dark"] {
+	color-scheme: dark;
+	--color-primary: #a78bfa;
+	--color-primary-dark: #6d28d9;
+	--color-deep-navy: #f5f3ff;
+	--color-light-purple: #34284d;
+	--color-soft-lavender: #302541;
+	--color-white: #211b30;
+	--color-text: #f5f3ff;
+	--color-secondary-text: #c4b9d8;
+	--color-border: #443752;
+	--color-success: #4ade80;
+	--color-danger: #fb7185;
+	--color-warning: #fbbf24;
+	--color-page-background: #12101a;
+	--color-surface-secondary: #191526;
+	--color-surface-elevated: #29213b;
+	--color-surface-hover: #332747;
+	--chart-income: #4ade80;
+	--chart-expense: #f87171;
+	--chart-primary: #a78bfa;
+	--chart-secondary: #c4b5fd;
+	--chart-category-1: #a78bfa;
+	--chart-category-2: #4ade80;
+	--chart-category-3: #fbbf24;
+	--chart-category-4: #60a5fa;
+	--chart-category-5: #fb7185;
+	--chart-category-6: #c4b5fd;
+	--chart-category-7: #2dd4bf;
+	--chart-category-8: #b8aec9;
+	--shadow-card: 0 8px 26px rgba(0, 0, 0, .18);
+	--shadow-popover: 0 18px 48px rgba(0, 0, 0, .4);
+}
+
+[data-theme="dark"] .spendwise-brand-name > span:first-child {
+	color: #f5f3ff;
+}
+
+[data-theme="dark"] .spendwise-brand-name > span:last-child {
+	color: #c4b5fd;
+}
+
+html,
+body {
+	background: var(--color-page-background);
+	color: var(--color-text);
+	transition: background-color .18s ease, color .18s ease;
+}
+
+html {
+	overflow-x: clip;
+}
+
+.theme-switcher {
+	display: inline-flex;
+	align-items: center;
+	gap: 7px;
+	color: var(--color-secondary-text);
+	font-size: 11px;
+	font-weight: 600;
+}
+
+.theme-switcher select {
+	min-height: 34px;
+	padding: 6px 26px 6px 9px;
+	border: 1px solid var(--color-border);
+	border-radius: 8px;
+	background-color: var(--color-white);
+	color: var(--color-text);
+	font-size: 12px;
+}
+
+.theme-switcher-floating {
+	position: fixed;
+	top: 14px;
+	right: 16px;
+	z-index: 60;
+	padding: 7px 9px;
+	border: 1px solid var(--color-border);
+	border-radius: 10px;
+	background: var(--color-white);
+	box-shadow: var(--shadow-card);
+}
+
+.app-shell {
+	background:
+		radial-gradient(ellipse at 86% 0%, color-mix(in srgb, var(--color-light-purple) 24%, transparent), transparent 34rem),
+		var(--color-page-background);
+}
+
+.app-shell .sidebar {
+	background: linear-gradient(165deg, #21143d 0%, #21143d 52%, #2d1b50 100%);
+}
+
+[data-theme="dark"] .app-shell .sidebar {
+	background: linear-gradient(165deg, #171321 0%, #191526 100%);
+}
+
+.sidebar-brand-content {
+	display: grid;
+	gap: 5px;
+}
+
+.sidebar-tagline {
+	padding-left: 4px;
+	color: #c4b9d8;
+	font-size: 9px;
+	letter-spacing: .01em;
+}
+
+.app-shell .navbar {
+	border-color: var(--color-border);
+	background: color-mix(in srgb, var(--color-surface-secondary) 90%, transparent);
+}
+
+.navbar-copy h1,
+.page-header h2,
+.dashboard-panel-title h2,
+.dashboard-period-heading h2,
+.analytics-panel h2,
+.analytics-panel h3,
+.corporate-panel h2,
+.corporate-panel h3,
+.phase4-budget-heading h3,
+.phase4-summary strong,
+.profile-card h2,
+.demo-panel h2,
+.demo-panel h3,
+.demo-intro h1 {
+	color: var(--color-deep-navy);
+}
+
+.page-header p,
+.muted,
+.navbar-copy p,
+.navbar-eyebrow,
+.navbar-user-name,
+.dashboard-panel-title p,
+.dashboard-budget-heading span,
+.dashboard-budget-caption,
+.dashboard-transaction-main span,
+.phase4-muted,
+.phase4-summary small {
+	color: var(--color-secondary-text);
+}
+
+.summary-card,
+.panel,
+.analytics-summary-card,
+.phase4-summary,
+.phase4-budget-card,
+.profile-card,
+.corporate-panel,
+.corporate-stats article,
+.expense-filters,
+.phase4-filters,
+.analytics-filters,
+.expense-table-wrap,
+.profile-menu-popover,
+.demo-metric,
+.demo-panel,
+.budget-summary > div {
+	border-color: var(--color-border);
+	background-color: var(--color-white);
+	color: var(--color-text);
+	box-shadow: var(--shadow-card);
+}
+
+.profile-menu-popover {
+	box-shadow: var(--shadow-popover);
+}
+
+.profile-appearance {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 14px;
+	margin-top: 20px;
+	padding-top: 16px;
+	border-top: 1px solid var(--color-border);
+}
+
+.profile-appearance h4 {
+	margin: 0 0 4px;
+	color: var(--color-text);
+	font-size: 13px;
+}
+
+.profile-appearance .profile-muted {
+	max-width: 290px;
+}
+
+.profile-appearance .theme-switcher-label {
+	display: none;
+}
+
+.profile-photo-card .profile-file-button {
+	border-color: var(--color-border);
+	background: var(--color-white);
+	color: var(--color-text);
+}
+
+.app-shell .page-content .expenses-page > .page-header,
+.app-shell .page-content .phase4-page > .page-header,
+.app-shell .page-content .analytics-page > .page-header,
+.app-shell .page-content .profile-page > .page-header {
+	margin: 0;
+	padding: 22px 26px;
+	border: 1px solid var(--color-border);
+	border-radius: 16px;
+	background: linear-gradient(115deg, color-mix(in srgb, var(--color-primary) 10%, var(--color-white)), var(--color-white) 78%);
+	box-shadow: var(--shadow-card);
+}
+
+.app-shell .page-content .page-header h2 {
+	margin-bottom: 5px;
+	font-size: clamp(22px, 2.4vw, 27px);
+	letter-spacing: -.035em;
+}
+
+.app-shell .page-content .page-header p {
+	font-size: 13px;
+	line-height: 1.5;
+}
+
+.app-shell .page-content .expenses-toolbar,
+.app-shell .page-content .phase4-toolbar {
+	min-height: 82px;
+	padding: 14px 18px;
+	border: 1px solid var(--color-border);
+	border-radius: 12px;
+	background: var(--color-white);
+	box-shadow: var(--shadow-card);
+}
+
+.app-shell .page-content .expense-total strong {
+	color: var(--color-deep-navy);
+	font-size: 23px;
+	font-variant-numeric: tabular-nums;
+}
+
+.app-shell .page-content .expense-total span,
+.app-shell .page-content .expense-total small {
+	color: var(--color-secondary-text);
+}
+
+.app-shell .page-content .expense-filters,
+.app-shell .page-content .phase4-filters {
+	gap: 12px;
+	padding: 18px;
+	border-radius: 12px;
+	background: var(--color-white);
+	box-shadow: var(--shadow-card);
+}
+
+.app-shell .page-content .expense-filters label,
+.app-shell .page-content .phase4-filters label {
+	color: var(--color-secondary-text);
+	font-size: 11px;
+}
+
+.app-shell .page-content .expense-filters input,
+.app-shell .page-content .expense-filters select,
+.app-shell .page-content .phase4-filters input,
+.app-shell .page-content .phase4-filters select,
+.app-shell .page-content .phase4-period input {
+	border-color: var(--color-border);
+	border-radius: 8px;
+	background: var(--color-surface-secondary);
+	color: var(--color-text);
+}
+
+.app-shell .page-content .analytics-toolbar {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 12px;
+	padding: 14px 16px;
+	border: 1px solid var(--color-border);
+	border-radius: 12px;
+	background: var(--color-white);
+	box-shadow: var(--shadow-card);
+}
+
+.app-shell .page-content .analytics-filters {
+	flex: 1 1 560px;
+	gap: 12px;
+	padding: 0;
+	border: 0;
+	background: transparent;
+	box-shadow: none;
+}
+
+.app-shell .page-content .analytics-filters label {
+	color: var(--color-secondary-text);
+	font-size: 11px;
+}
+
+.app-shell .page-content .analytics-filters input,
+.app-shell .page-content .analytics-filters select {
+	border-color: var(--color-border);
+	border-radius: 8px;
+	background: var(--color-surface-secondary);
+	color: var(--color-text);
+}
+
+.app-shell .page-content .analytics-report-actions {
+	margin-left: auto;
+}
+
+.app-shell .page-content .analytics-summary-card,
+.app-shell .page-content .phase4-summary,
+.app-shell .page-content .corporate-stats article {
+	border-radius: 13px;
+	box-shadow: var(--shadow-card);
+}
+
+.app-shell .page-content .analytics-summary-card > span,
+.app-shell .page-content .analytics-summary-card > small,
+.app-shell .page-content .phase4-summary > span,
+.app-shell .page-content .phase4-summary small,
+.app-shell .page-content .phase4-budget-numbers span,
+.app-shell .page-content .phase4-budget-caption,
+.app-shell .page-content .phase4-muted {
+	color: var(--color-secondary-text);
+}
+
+.app-shell .page-content .analytics-summary-card > strong,
+.app-shell .page-content .phase4-summary > strong,
+.app-shell .page-content .phase4-budget-heading h3,
+.app-shell .page-content .phase4-budget-numbers strong {
+	color: var(--color-deep-navy);
+}
+
+.app-shell .page-content .analytics-period-heading h3,
+.app-shell .page-content .analytics-panel-title h2,
+.app-shell .page-content .phase4-budget-section > h2 {
+	color: var(--color-deep-navy);
+}
+
+.app-shell .page-content .analytics-period-heading p,
+.app-shell .page-content .analytics-panel-title p {
+	color: var(--color-secondary-text);
+}
+
+.app-shell .page-content .analytics-comparison,
+.app-shell .page-content .analytics-largest,
+.app-shell .page-content .analytics-report-meta {
+	border-color: var(--color-border);
+	background: var(--color-surface-secondary);
+	color: var(--color-text);
+}
+
+.app-shell .page-content .analytics-comparison > strong,
+.app-shell .page-content .analytics-comparison > span,
+.app-shell .page-content .analytics-highlight,
+.app-shell .page-content .analytics-largest > span:not(.analytics-type),
+.app-shell .page-content .analytics-largest > small {
+	color: var(--color-secondary-text);
+}
+
+.app-shell .page-content .analytics-largest > strong,
+.app-shell .page-content .analytics-highlight strong,
+.app-shell .page-content .analytics-budget-summary strong,
+.app-shell .page-content .analytics-daily-average strong {
+	color: var(--color-deep-navy);
+}
+
+.app-shell .page-content .analytics-report-table tfoot th {
+	border-color: var(--color-border);
+	background: var(--color-surface-secondary);
+	color: var(--color-text);
+}
+
+.app-shell .page-content .profile-card {
+	border-radius: 15px;
+	box-shadow: var(--shadow-card);
+}
+
+.app-shell .page-content .profile-card h3,
+.app-shell .page-content .profile-form label,
+.app-shell .page-content .profile-account-card dd {
+	color: var(--color-text);
+}
+
+.app-shell .page-content .profile-form input,
+.app-shell .page-content .profile-form textarea {
+	border-color: var(--color-border);
+	background: var(--color-surface-secondary);
+	color: var(--color-text);
+}
+
+.app-shell .page-content .profile-form input:focus,
+.app-shell .page-content .profile-form textarea:focus {
+	border-color: var(--color-primary);
+	box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 18%, transparent);
+}
+
+.app-shell .page-content .profile-account-card dl div,
+.app-shell .page-content .profile-menu-popover > span {
+	border-color: var(--color-border);
+}
+
+.app-shell .page-content .profile-account-card dt,
+.app-shell .page-content .profile-muted {
+	color: var(--color-secondary-text);
+}
+
+.app-shell .page-content .corporate-heading {
+	padding: 22px 26px;
+	border: 1px solid var(--color-border);
+	border-radius: 16px;
+	background: linear-gradient(115deg, color-mix(in srgb, var(--color-primary) 10%, var(--color-white)), var(--color-white) 78%);
+	box-shadow: var(--shadow-card);
+}
+
+.app-shell .page-content .corporate-heading h2 {
+	color: var(--color-deep-navy);
+	letter-spacing: -.035em;
+}
+
+.app-shell .page-content .corporate-heading p,
+.app-shell .page-content .corporate-section-title p,
+.app-shell .page-content .corporate-stats span,
+.app-shell .page-content .corporate-table td,
+.app-shell .page-content .corporate-table td small {
+	color: var(--color-secondary-text);
+}
+
+.app-shell .page-content .corporate-stats strong,
+.app-shell .page-content .corporate-table td strong {
+	color: var(--color-deep-navy);
+}
+
+.app-shell .page-content .corporate-panel {
+	border-radius: 14px;
+	box-shadow: var(--shadow-card);
+}
+
+.app-shell .page-content .corporate-section-title {
+	padding-bottom: 13px;
+	border-bottom: 1px solid var(--color-border);
+}
+
+.app-shell .page-content .corporate-section-title h3 {
+	color: var(--color-deep-navy);
+}
+
+.app-shell .page-content .corporate-form input,
+.app-shell .page-content .corporate-form select,
+.app-shell .page-content .corporate-form textarea,
+.app-shell .page-content .department-form input,
+.app-shell .page-content .corporate-table select,
+.app-shell .page-content .decision-controls input {
+	border-color: var(--color-border);
+	background: var(--color-surface-secondary);
+	color: var(--color-text);
+}
+
+.app-shell .page-content .corporate-table th,
+.app-shell .page-content .corporate-table td {
+	border-color: var(--color-border);
+}
+
+.auth-page {
+	background:
+		radial-gradient(ellipse at 18% 15%, color-mix(in srgb, var(--color-primary) 14%, transparent), transparent 35rem),
+		var(--color-page-background);
+}
+
+.auth-card {
+	border-radius: 20px;
+	box-shadow: var(--shadow-popover);
+}
+
+.auth-card h1 {
+	color: var(--color-deep-navy);
+	letter-spacing: -.04em;
+}
+
+.auth-card .muted,
+.auth-card label {
+	color: var(--color-secondary-text);
+}
+
+.auth-card .mode-switch,
+.auth-card .corporate-choice {
+	border: 1px solid var(--color-border);
+	background: var(--color-surface-secondary);
+}
+
+.auth-card .mode-switch button,
+.auth-card .corporate-choice button {
+	color: var(--color-secondary-text);
+}
+
+.auth-card .mode-switch button.selected,
+.auth-card .corporate-choice button.selected {
+	background: var(--color-white);
+	color: var(--color-primary);
+	box-shadow: var(--shadow-card);
+}
+
+.auth-card .workspace-hint {
+	color: var(--color-secondary-text);
+}
+
+.auth-card .form-row .password-help,
+.auth-card .auth-footer {
+	color: var(--color-secondary-text);
+}
+
+.demo-intro {
+	padding: clamp(24px, 4vw, 40px);
+	border: 1px solid var(--color-border);
+	border-radius: 18px;
+	background: linear-gradient(115deg, color-mix(in srgb, var(--color-primary) 10%, var(--color-white)), var(--color-white) 78%);
+	box-shadow: var(--shadow-card);
+}
+
+.demo-intro h1 {
+	color: var(--color-deep-navy);
+	letter-spacing: -.04em;
+}
+
+.demo-metric,
+.demo-panel {
+	border-radius: 14px;
+	box-shadow: var(--shadow-card);
+}
+
+.demo-metric > span,
+.demo-metric small,
+.demo-panel-heading p {
+	color: var(--color-secondary-text);
+}
+
+.demo-metric > strong,
+.demo-panel-heading h2 {
+	color: var(--color-deep-navy);
+}
+
+.app-shell .page-content .primary-btn,
+.app-shell .page-content .secondary-button,
+.app-shell .page-content .text-button,
+.auth-card .primary-btn,
+.profile-primary,
+.corporate-primary {
+	transition: transform .15s ease, box-shadow .15s ease, background-color .15s ease;
+}
+
+.app-shell .page-content .primary-btn:hover:not(:disabled),
+.auth-card .primary-btn:hover:not(:disabled),
+.profile-primary:hover:not(:disabled),
+.corporate-primary:hover:not(:disabled) {
+	transform: translateY(-1px);
+	box-shadow: 0 5px 14px color-mix(in srgb, var(--color-primary) 22%, transparent);
+}
+
+@media (max-width: 520px) {
+	.profile-appearance {
+		align-items: flex-start;
+		flex-direction: column;
+	}
+}
+
+@media (max-width: 650px) {
+	.app-shell .page-content .expenses-page > .page-header,
+	.app-shell .page-content .phase4-page > .page-header,
+	.app-shell .page-content .analytics-page > .page-header,
+	.app-shell .page-content .profile-page > .page-header {
+		padding: 18px;
+	}
+
+	.app-shell .page-content .expenses-toolbar,
+	.app-shell .page-content .phase4-toolbar {
+		padding: 12px;
+	}
+
+	.app-shell .page-content .analytics-toolbar {
+		padding: 12px;
+	}
+
+	.app-shell .page-content .analytics-filters {
+		flex-basis: 100%;
+	}
+
+	.app-shell .page-content .analytics-report-actions {
+		width: 100%;
+		justify-content: flex-end;
+	}
+
+	.app-shell .page-content .corporate-heading {
+		padding: 18px;
+	}
+
+	.demo-intro {
+		padding: 22px;
+	}
+}
+
+.secondary-button,
+.secondary-btn,
+.icon-button,
+.profile-secondary,
+.corporate-secondary,
+.theme-switcher select,
+.dashboard-toolbar input,
+.dashboard-period-picker input,
+.dashboard-month-picker input,
+.dashboard-period-tabs,
+.phase4-period input,
+.expense-filters input,
+.expense-filters select,
+.expense-form input,
+.expense-form select,
+.expense-form textarea,
+.phase4-filters input,
+.phase4-filters select,
+.analytics-filters input,
+.analytics-filters select,
+.profile-form input,
+.profile-form textarea,
+.budget-form input,
+.budget-form select,
+.corporate-form input,
+.corporate-form select,
+.corporate-form textarea,
+.department-form input,
+.corporate-table select,
+.decision-controls input,
+.demo-estimate-form input,
+.demo-estimate-form select {
+	border-color: var(--color-border);
+	background-color: var(--color-white);
+	color: var(--color-text);
+}
+
+.expense-table th,
+.corporate-table th,
+.demo-table thead th {
+	background: var(--color-surface-secondary);
+	color: var(--color-secondary-text);
+}
+
+.expense-table th,
+.expense-table td,
+.corporate-table th,
+.corporate-table td,
+.demo-table th,
+.demo-table td,
+.dashboard-transaction,
+.dashboard-ai-section {
+	border-color: var(--color-border);
+}
+
+.expense-table tbody tr:hover,
+.corporate-table tbody tr:hover,
+.demo-table tbody tr:hover {
+	background: var(--color-surface-secondary);
+}
+
+.expense-dialog,
+.confirm-dialog,
+.modal-content {
+	border-color: var(--color-border);
+	background: var(--color-white);
+	color: var(--color-text);
+}
+
+.expense-dialog-header h3,
+.confirm-dialog h2,
+.expense-dialog label,
+.expense-form label,
+.phase4-toolbar label,
+.analytics-filters label,
+.profile-form label,
+.corporate-form label,
+.demo-estimate-form label {
+	color: var(--color-text);
+}
+
+.dashboard-panel,
+.analytics-panel {
+	background-color: var(--color-white);
+	color: var(--color-text);
+}
+
+.dashboard-chart .recharts-cartesian-grid line,
+.analytics-chart .recharts-cartesian-grid line,
+.recharts-cartesian-grid line {
+	stroke: var(--color-border);
+}
+
+.recharts-cartesian-axis-tick text,
+.recharts-legend-item-text {
+	fill: var(--color-secondary-text);
+	color: var(--color-secondary-text);
+}
+
+.recharts-default-tooltip {
+	border: 1px solid var(--color-border) !important;
+	border-radius: 9px;
+	background-color: var(--color-white) !important;
+	color: var(--color-text);
+	box-shadow: var(--shadow-card);
+}
+
+.recharts-tooltip-wrapper .recharts-tooltip-label,
+.recharts-tooltip-wrapper .recharts-tooltip-item {
+	color: var(--color-text);
+}
+
+.dashboard-transaction .transaction-type-icon.income {
+	background: color-mix(in srgb, var(--color-success) 14%, var(--color-white));
+	color: var(--color-success);
+}
+
+.dashboard-transaction .transaction-type-icon.expense {
+	background: color-mix(in srgb, var(--color-danger) 14%, var(--color-white));
+	color: var(--color-danger);
+}
+
+.transaction-amount.income,
+.dashboard-budget-caption,
+.dashboard-empty,
+.dashboard-refresh-note,
+.dashboard-ai-empty,
+.phase4-empty,
+.analytics-empty,
+.demo-loading,
+.demo-footer {
+	color: var(--color-secondary-text);
+}
+
+.transaction-amount.income {
+	color: var(--color-success);
+}
+
+.transaction-amount.expense {
+	color: var(--color-danger);
+}
+
+.dashboard-insights li.warning {
+	background: color-mix(in srgb, var(--color-warning) 14%, var(--color-white));
+	color: var(--color-warning);
+}
+
+.dashboard-insights li.positive {
+	background: color-mix(in srgb, var(--color-success) 14%, var(--color-white));
+	color: var(--color-success);
+}
+
+.dashboard-insights li.info {
+	background: color-mix(in srgb, var(--color-primary) 14%, var(--color-white));
+	color: var(--color-secondary-text);
+}
+
+.dashboard-insights li.neutral {
+	background: var(--color-surface-secondary);
+	color: var(--color-secondary-text);
+}
+
+.dashboard-ai-list li {
+	border-color: var(--color-border);
+	background: color-mix(in srgb, var(--color-warning) 8%, var(--color-white));
+}
+
+.dashboard-ai-list li strong,
+.dashboard-ai-list li span,
+.dashboard-prediction-values strong,
+.phase4-budget-numbers strong,
+.profile-card,
+.corporate-page,
+.demo-page {
+	color: var(--color-text);
+}
+
+.dashboard-progress span {
+	background: var(--chart-primary);
+}
+
+.dashboard-progress span.is-over {
+	background: var(--color-danger);
+}
+
+.budget-progress-track {
+	background: var(--color-surface-secondary);
+}
+
+.budget-progress-track span {
+	background: var(--chart-primary);
+}
+
+.budget-progress-track span.over,
+.budget-warning {
+	background-color: color-mix(in srgb, var(--color-danger) 12%, var(--color-white));
+	color: var(--color-danger);
+}
+
+.phase4-budget-heading .phase4-eyebrow,
+.phase4-budget-numbers span,
+.profile-card p,
+.corporate-page p,
+.demo-panel p,
+.demo-intro p,
+.demo-disclaimer {
+	color: var(--color-secondary-text);
+}
+
+.dashboard-period-tabs button {
+	color: var(--color-secondary-text);
+}
+
+.dashboard-period-tabs button.active {
+	background: var(--color-primary-dark);
+	color: #fff;
+}
+
+.dashboard-period-heading > span,
+.analytics-period-caption,
+.analytics-summary-card span {
+	color: var(--color-secondary-text);
+}
+
+.analytics-summary-card strong,
+.analytics-transaction strong,
+.analytics-transaction span,
+.corporate-table td,
+.expense-table td,
+.demo-table td {
+	color: var(--color-text);
+}
+
+.demo-disclaimer,
+.demo-model-evaluation,
+.demo-estimate-result,
+.demo-estimate-form,
+.corporate-empty,
+.profile-avatar-panel {
+	border-color: var(--color-border);
+	background: var(--color-surface-secondary);
+}
+
+.expense-form-actions,
+.profile-form-actions,
+.corporate-form-actions {
+	border-color: var(--color-border);
+}
+
+.dashboard-budget-heading strong,
+.dashboard-budget-heading > b,
+.dashboard-transaction-main strong,
+.transaction-amount,
+.analytics-transaction strong,
+.corporate-table td,
+.expense-table td,
+.demo-table td,
+.profile-menu-popover strong {
+	color: var(--color-text);
+}
+
+.dashboard-progress,
+.dashboard-prediction-values > div,
+.dashboard-insights li,
+.dashboard-ai-list li,
+.dashboard-period-tabs {
+	background-color: var(--color-surface-secondary);
+	color: var(--color-text);
+}
+
+.auth-page,
+.demo-page {
+	background: var(--color-page-background);
+	color: var(--color-text);
+}
+
+.auth-card {
+	border-color: var(--color-border);
+	background: var(--color-white);
+	color: var(--color-text);
+	box-shadow: var(--shadow-card);
+}
+
+.auth-card h1,
+.auth-card label,
+.auth-card .muted,
+.auth-footer {
+	color: var(--color-text);
+}
+
+.auth-card input:not([type="checkbox"]) {
+	border-color: var(--color-border);
+	background-color: var(--color-surface-secondary);
+	color: var(--color-text);
+}
+
+.demo-header {
+	border-color: var(--color-border);
+	background: var(--color-surface-secondary);
+}
+
+.dashboard-error,
+.expense-alert.error,
+.form-error,
+.demo-error {
+	border-color: color-mix(in srgb, var(--color-danger) 35%, transparent);
+	background: color-mix(in srgb, var(--color-danger) 12%, var(--color-white));
+	color: var(--color-danger);
+}
+
+.expense-alert.success,
+.form-success {
+	border-color: color-mix(in srgb, var(--color-success) 35%, transparent);
+	background: color-mix(in srgb, var(--color-success) 12%, var(--color-white));
+	color: var(--color-success);
+}
+
+@media (max-width: 760px) {
+	.theme-switcher-label {
+		display: none;
+	}
+
+	.app-shell .navbar .theme-switcher {
+		margin-left: auto;
+	}
+
+	.app-shell .navbar .theme-switcher-floating {
+		top: auto;
+		bottom: 12px;
+		right: 12px;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		scroll-behavior: auto !important;
+		animation-duration: .01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: .01ms !important;
+	}
+}
+
+[data-theme="dark"] .dashboard-page .dashboard-panel-title h2,
+[data-theme="dark"] .dashboard-page .dashboard-period-heading h2,
+[data-theme="dark"] .dashboard-page .dashboard-budget-heading strong,
+[data-theme="dark"] .dashboard-page .dashboard-transaction-main strong,
+[data-theme="dark"] .analytics-page .analytics-period-heading h3,
+[data-theme="dark"] .analytics-page .analytics-panel-title h2,
+[data-theme="dark"] .analytics-page .analytics-summary-card > strong,
+[data-theme="dark"] .analytics-page .analytics-largest > strong,
+[data-theme="dark"] .analytics-page .analytics-highlight strong,
+[data-theme="dark"] .phase4-page .phase4-budget-heading h3,
+[data-theme="dark"] .phase4-page .phase4-budget-numbers strong,
+[data-theme="dark"] .phase4-page .phase4-summary > strong,
+[data-theme="dark"] .phase4-page .phase4-budget-section > h2,
+[data-theme="dark"] .expenses-page .expense-total strong,
+[data-theme="dark"] .expenses-page .expense-table td,
+[data-theme="dark"] .expenses-page .expense-table td strong,
+[data-theme="dark"] .profile-page .profile-card,
+[data-theme="dark"] .profile-page .profile-card h3,
+[data-theme="dark"] .corporate-page .corporate-heading h2,
+[data-theme="dark"] .corporate-page .corporate-section-title h3,
+[data-theme="dark"] .corporate-page .corporate-stats strong,
+[data-theme="dark"] .corporate-page .corporate-table td,
+[data-theme="dark"] .corporate-page .corporate-table td strong,
+[data-theme="dark"] .demo-page .demo-intro h1,
+[data-theme="dark"] .demo-page .demo-panel-heading h2,
+[data-theme="dark"] .demo-page .demo-metric > strong,
+[data-theme="dark"] .demo-page .demo-table td,
+[data-theme="dark"] .demo-page .demo-table tbody th {
+	color: var(--color-text);
+}
+
+[data-theme="dark"] .dashboard-page .dashboard-panel,
+[data-theme="dark"] .analytics-page .analytics-panel,
+[data-theme="dark"] .phase4-page .phase4-empty,
+[data-theme="dark"] .profile-page .profile-loading,
+[data-theme="dark"] .profile-page .profile-card,
+[data-theme="dark"] .corporate-page .corporate-panel,
+[data-theme="dark"] .corporate-page .corporate-stats article,
+[data-theme="dark"] .demo-page .demo-panel,
+[data-theme="dark"] .demo-page .demo-metric,
+[data-theme="dark"] .expense-dialog,
+[data-theme="dark"] .profile-menu-popover {
+	border-color: var(--color-border);
+	background-color: var(--color-white);
+	color: var(--color-text);
+}
+
+[data-theme="dark"] .dashboard-page .dashboard-panel-title p,
+[data-theme="dark"] .dashboard-page .dashboard-period-heading > span,
+[data-theme="dark"] .dashboard-page .dashboard-budget-heading span,
+[data-theme="dark"] .dashboard-page .dashboard-budget-caption,
+[data-theme="dark"] .dashboard-page .dashboard-transaction-main span,
+[data-theme="dark"] .analytics-page .analytics-panel-title p,
+[data-theme="dark"] .analytics-page .analytics-period-heading p,
+[data-theme="dark"] .analytics-page .analytics-summary-card > span,
+[data-theme="dark"] .analytics-page .analytics-summary-card > small,
+[data-theme="dark"] .analytics-page .analytics-comparison,
+[data-theme="dark"] .analytics-page .analytics-comparison > strong,
+[data-theme="dark"] .analytics-page .analytics-largest > span,
+[data-theme="dark"] .analytics-page .analytics-largest > small,
+[data-theme="dark"] .phase4-page .phase4-summary > span,
+[data-theme="dark"] .phase4-page .phase4-summary small,
+[data-theme="dark"] .phase4-page .phase4-budget-numbers span,
+[data-theme="dark"] .expenses-page .expense-filters label,
+[data-theme="dark"] .expenses-page .expense-form label,
+[data-theme="dark"] .expenses-page .expense-table th,
+[data-theme="dark"] .expenses-page .expense-secondary,
+[data-theme="dark"] .profile-page .profile-muted,
+[data-theme="dark"] .profile-page .profile-account-card dt,
+[data-theme="dark"] .profile-menu-popover > span,
+[data-theme="dark"] .corporate-page .corporate-heading p,
+[data-theme="dark"] .corporate-page .corporate-section-title p,
+[data-theme="dark"] .corporate-page .corporate-stats span,
+[data-theme="dark"] .corporate-page .corporate-table th,
+[data-theme="dark"] .corporate-page .corporate-table td small,
+[data-theme="dark"] .demo-page .demo-panel-heading p,
+[data-theme="dark"] .demo-page .demo-metric > span,
+[data-theme="dark"] .demo-page .demo-metric > small,
+[data-theme="dark"] .demo-page .demo-table thead th,
+[data-theme="dark"] .expense-dialog .expense-dialog-header p {
+	color: var(--color-secondary-text);
+}
+
+[data-theme="dark"] .dashboard-page .dashboard-panel-skeleton,
+[data-theme="dark"] .dashboard-page .dashboard-prediction-values > div,
+[data-theme="dark"] .dashboard-page .dashboard-insights li,
+[data-theme="dark"] .dashboard-page .dashboard-ai-list li,
+[data-theme="dark"] .analytics-page .analytics-comparison,
+[data-theme="dark"] .analytics-page .analytics-budget-progress,
+[data-theme="dark"] .phase4-page .budget-progress-track,
+[data-theme="dark"] .phase4-page .phase4-empty,
+[data-theme="dark"] .expenses-page .expense-filters,
+[data-theme="dark"] .expenses-page .expense-table-wrap,
+[data-theme="dark"] .phase4-page .phase4-filters,
+[data-theme="dark"] .analytics-page .analytics-filters,
+[data-theme="dark"] .analytics-page .analytics-summary-card,
+[data-theme="dark"] .profile-page .profile-file-button,
+[data-theme="dark"] .corporate-page .corporate-form input,
+[data-theme="dark"] .corporate-page .corporate-form select,
+[data-theme="dark"] .corporate-page .corporate-form textarea,
+[data-theme="dark"] .corporate-page .department-form input,
+[data-theme="dark"] .corporate-page .corporate-table select,
+[data-theme="dark"] .corporate-page .decision-controls input,
+[data-theme="dark"] .demo-page .demo-table-wrap,
+[data-theme="dark"] .expenses-page .expense-table th,
+[data-theme="dark"] .profile-page .profile-photo-preview,
+[data-theme="dark"] .profile-page .profile-menu-popover a:hover,
+[data-theme="dark"] .corporate-page .joining-code,
+[data-theme="dark"] .corporate-page .department-tags span,
+[data-theme="dark"] .corporate-page .corporate-table .table-action,
+[data-theme="dark"] .demo-page .demo-disclaimer,
+[data-theme="dark"] .demo-page .demo-table thead th,
+[data-theme="dark"] .expense-suggestion-result {
+	background-color: var(--color-surface-secondary);
+	color: var(--color-text);
+}
+
+[data-theme="dark"] .dashboard-page .dashboard-insights li.warning,
+[data-theme="dark"] .corporate-page .queue-count,
+[data-theme="dark"] .corporate-page .status-pill.pending {
+	background: color-mix(in srgb, var(--color-warning) 14%, var(--color-white));
+	color: var(--color-warning);
+}
+
+[data-theme="dark"] .dashboard-page .dashboard-insights li.positive,
+[data-theme="dark"] .corporate-page .status-pill.approved,
+[data-theme="dark"] .corporate-page .decision-controls button {
+	background: color-mix(in srgb, var(--color-success) 14%, var(--color-white));
+	color: var(--color-success);
+}
+
+[data-theme="dark"] .dashboard-page .dashboard-insights li.info,
+[data-theme="dark"] .dashboard-page .dashboard-insights li.neutral {
+	background: var(--color-surface-secondary);
+	color: var(--color-secondary-text);
+}
+
+[data-theme="dark"] .dashboard-page .dashboard-ai-list li {
+	border-color: var(--color-border);
+	background: color-mix(in srgb, var(--color-warning) 8%, var(--color-white));
+}
+
+[data-theme="dark"] .dashboard-page .dashboard-ai-list li strong,
+[data-theme="dark"] .dashboard-page .dashboard-ai-list li span {
+	color: var(--color-text);
+}
+
+[data-theme="dark"] .analytics-page .analytics-summary-card,
+[data-theme="dark"] .analytics-page .analytics-comparison,
+[data-theme="dark"] .analytics-page .analytics-report-table tfoot th,
+[data-theme="dark"] .demo-page .demo-header,
+[data-theme="dark"] .demo-page .demo-disclaimer {
+	border-color: var(--color-border);
+	background-color: var(--color-surface-secondary);
+	color: var(--color-text);
+}
+
+[data-theme="dark"] .demo-page .demo-disclaimer p,
+[data-theme="dark"] .demo-page .demo-footer,
+[data-theme="dark"] .analytics-page .analytics-report-meta,
+[data-theme="dark"] .analytics-page .analytics-period-heading p {
+	color: var(--color-secondary-text);
+}
+
+[data-theme="dark"] .demo-page .demo-table th,
+[data-theme="dark"] .demo-page .demo-table td,
+[data-theme="dark"] .corporate-page .corporate-table th,
+[data-theme="dark"] .corporate-page .corporate-table td,
+[data-theme="dark"] .expenses-page .expense-table th,
+[data-theme="dark"] .expenses-page .expense-table td,
+[data-theme="dark"] .profile-page .profile-account-card dl div {
+	border-color: var(--color-border);
+}
+
+[data-theme="dark"] .expenses-page .expense-filters input,
+[data-theme="dark"] .expenses-page .expense-filters select,
+[data-theme="dark"] .expenses-page .expense-form input,
+[data-theme="dark"] .expenses-page .expense-form select,
+[data-theme="dark"] .expenses-page .expense-form textarea,
+[data-theme="dark"] .phase4-page .phase4-filters input,
+[data-theme="dark"] .phase4-page .phase4-filters select,
+[data-theme="dark"] .phase4-page .phase4-period input,
+[data-theme="dark"] .analytics-page .analytics-filters input,
+[data-theme="dark"] .analytics-page .analytics-filters select,
+[data-theme="dark"] .profile-page .profile-form input,
+[data-theme="dark"] .profile-page .profile-form textarea,
+[data-theme="dark"] .auth-page .auth-card input:not([type="checkbox"]),
+[data-theme="dark"] .corporate-page .corporate-form input,
+[data-theme="dark"] .corporate-page .corporate-form select,
+[data-theme="dark"] .corporate-page .corporate-form textarea,
+[data-theme="dark"] .corporate-page .department-form input,
+[data-theme="dark"] .corporate-page .corporate-table select,
+[data-theme="dark"] .corporate-page .decision-controls input,
+[data-theme="dark"] .demo-page .demo-estimate-form input,
+[data-theme="dark"] .demo-page .demo-estimate-form select {
+	border-color: var(--color-border);
+	background-color: var(--color-surface-secondary);
+	color: var(--color-text);
+}
+
+[data-theme="dark"] .expense-dialog .expense-form label,
+[data-theme="dark"] .analytics-page .analytics-filters label,
+[data-theme="dark"] .phase4-page .phase4-toolbar label,
+[data-theme="dark"] .profile-page .profile-form label,
+[data-theme="dark"] .corporate-page .corporate-form label,
+[data-theme="dark"] .demo-page .demo-estimate-form label,
+[data-theme="dark"] .auth-page .auth-card label {
+	color: var(--color-text);
+}
+
+[data-theme="dark"] .auth-page .mode-switch,
+[data-theme="dark"] .auth-page .corporate-choice {
+	background: var(--color-surface-secondary);
+}
+
+[data-theme="dark"] .auth-page .mode-switch button,
+[data-theme="dark"] .auth-page .corporate-choice button {
+	color: var(--color-secondary-text);
+}
+
+[data-theme="dark"] .auth-page .mode-switch button.selected,
+[data-theme="dark"] .auth-page .corporate-choice button.selected {
+	background: var(--color-white);
+	color: var(--color-primary);
+}
+
+[data-theme="dark"] .profile-page .profile-menu-popover a,
+[data-theme="dark"] .profile-page .profile-menu-popover button {
+	color: var(--color-text);
+}
+
+[data-theme="dark"] .profile-page .profile-menu-popover a:hover,
+[data-theme="dark"] .profile-page .profile-menu-popover button:hover {
+	background: var(--color-surface-secondary);
+}
+
+[data-theme="dark"] .expenses-page .expense-table th,
+[data-theme="dark"] .corporate-page .corporate-table th,
+[data-theme="dark"] .demo-page .demo-table thead th,
+[data-theme="dark"] .analytics-page .analytics-report-table tfoot th {
+	border-color: var(--color-border);
+	background-color: var(--color-surface-secondary);
+}
+
+[data-theme="dark"] .dashboard-page .dashboard-chart .recharts-cartesian-grid line,
+[data-theme="dark"] .analytics-page .analytics-chart .recharts-cartesian-grid line,
+[data-theme="dark"] .demo-page .recharts-cartesian-grid line {
+	stroke: var(--color-border);
+}
+
+[data-theme="dark"] .analytics-page .analytics-positive,
+[data-theme="dark"] .analytics-page .analytics-comparison.decreased > b,
+[data-theme="dark"] .analytics-page .analytics-report-table .report-income,
+[data-theme="dark"] .corporate-page .status-pill.approved,
+[data-theme="dark"] .corporate-page .decision-controls button {
+	color: var(--color-success);
+}
+
+[data-theme="dark"] .analytics-page .analytics-negative,
+[data-theme="dark"] .analytics-page .analytics-comparison.increased > b,
+[data-theme="dark"] .analytics-page .analytics-report-table .report-expense,
+[data-theme="dark"] .expenses-page .expense-table .amount-cell,
+[data-theme="dark"] .profile-page .profile-text-button.destructive,
+[data-theme="dark"] .corporate-page .status-pill.rejected {
+	color: var(--color-danger);
+}
+
+[data-theme="dark"] .corporate-page .joining-code,
+[data-theme="dark"] .corporate-page .department-tags span {
+	border-color: var(--color-border);
+}
+
+[data-theme="dark"] .phase4-page .phase4-budget-card.is-over {
+	border-color: color-mix(in srgb, var(--color-danger) 50%, var(--color-border));
+}
+
+[data-theme="dark"] .expense-dialog .expense-dialog-header h3,
+[data-theme="dark"] .expense-dialog .expense-dialog-header p {
+	color: var(--color-text);
+}
+
+[data-theme="dark"] .expense-dialog .expense-dialog-header p,
+[data-theme="dark"] .expense-dialog .field-optional {
+	color: var(--color-secondary-text);
+}
+
+[data-theme="dark"] .dashboard-page .dashboard-period-tabs button.active,
+[data-theme="dark"] .corporate-page .corporate-primary {
+	background: var(--color-primary-dark);
+	color: #fff;
+}
+
+[data-theme="dark"] .expense-dialog-backdrop {
+	background: rgba(8, 6, 14, .72);
+}

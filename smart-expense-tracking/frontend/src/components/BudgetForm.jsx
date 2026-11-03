@@ -20,15 +20,15 @@ export default function BudgetForm({ budget, categories, month, year, error, sav
 		onSave({
 			amount: form.amount,
 			category_id: form.category_id ? Number(form.category_id) : null,
-			month: Number(month),
-			year: Number(year),
+			month: Number(budget ? budget.month : month),
+			year: Number(budget ? budget.year : year),
 		});
 	};
 
 	return <div className="expense-dialog-backdrop" role="presentation">
 		<section className="expense-dialog" role="dialog" aria-modal="true" aria-labelledby="budget-form-title">
 			<div className="expense-dialog-header">
-				<div><h3 id="budget-form-title">{budget ? 'Edit budget' : 'Add budget'}</h3><p>For {new Date(Number(year), Number(month) - 1, 1).toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}.</p></div>
+				<div><h3 id="budget-form-title">{budget ? 'Edit budget' : 'Add budget'}</h3><p>{budget ? `Started ${new Date(Number(budget.year), Number(budget.month) - 1, 1).toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}; repeats monthly until deleted.` : `Starts ${new Date(Number(year), Number(month) - 1, 1).toLocaleDateString(undefined, { month: 'long', year: 'numeric' })} and repeats monthly until deleted.`}</p></div>
 				<button className="icon-button" type="button" onClick={onClose} aria-label="Close budget form">×</button>
 			</div>
 			{(validationError || error) && <div className="expense-alert error" role="alert">{validationError || error}</div>}

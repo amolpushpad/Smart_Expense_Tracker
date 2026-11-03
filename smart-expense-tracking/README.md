@@ -40,10 +40,12 @@ Phase 1 provides the React/Vite interface. Phase 2 adds Flask, MySQL-backed acco
 - Idempotent `seed-corporate-demo` command with fictional users and expense examples dated across the current and previous two months
 - Login and registration connected to Flask APIs with frontend and server-side validation
 - Protected dashboard routes with responsive navigation across finance, analytics, reports, and account screens
+- Application-wide Light, Dark, and System appearance settings with persistent preference and startup theme resolution
+- Application-wide Light, Dark, and System appearance settings with saved preference and startup theme resolution
 - Expense CRUD, server-side search/filter/sort, and paginated transaction history
 - Income CRUD with inclusive date-range filtering and deterministic sorting
-- Monthly overall and category-specific budgets with server-calculated spending, balances, utilization, and over-budget status
-- Database-enforced uniqueness for a user's overall or category budget per month and year
+- Recurring monthly overall and category-specific budgets with server-calculated spending, balances, utilization, and over-budget status
+- Budget versions take effect from their start month; deleting a budget removes its versions so older limits cannot unexpectedly resume
 - Authenticated dashboard summary, recent transactions, six-month trends, category breakdown, and budget-progress APIs
 - Recharts visualizations, selected-month filtering, real transaction history, and transparent financial insights
 - Weekly (Monday–Sunday), monthly, and custom inclusive date-range analytics with previous-period comparisons, category totals, largest transactions, and monthly budget utilization

@@ -23,7 +23,7 @@ const currency = new Intl.NumberFormat('en-IN', {
 	currency: 'INR',
 	maximumFractionDigits: 0,
 });
-const pieColors = ['#7C3AED', '#A78BFA', '#C4B5FD', '#DDD6FE', '#EDE9FE'];
+const pieColors = ['var(--chart-primary)', 'var(--chart-secondary)', '#c4b5fd', '#ddd6fe', '#ede9fe'];
 
 function MetricCard({ label, value, note }) {
 	return <article className="demo-metric">
@@ -137,8 +137,8 @@ export default function DatasetDemo() {
 									<YAxis tick={{ fontSize: 10 }} tickFormatter={value => `₹${Math.round(value / 1000)}k`} />
 									<Tooltip formatter={value => currency.format(value)} />
 									<Legend />
-									<Bar dataKey="Income" fill="#7C3AED" radius={[4, 4, 0, 0]} />
-									<Bar dataKey="Expenses" fill="#A78BFA" radius={[4, 4, 0, 0]} />
+									<Bar dataKey="Income" fill="var(--chart-primary)" radius={[4, 4, 0, 0]} />
+									<Bar dataKey="Expenses" fill="var(--chart-secondary)" radius={[4, 4, 0, 0]} />
 								</BarChart>
 							</ResponsiveContainer>
 						</div>
