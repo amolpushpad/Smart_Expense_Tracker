@@ -57,7 +57,7 @@ class Config:
     PROFILE_PHOTO_MAX_BYTES = 5 * 1024 * 1024
     MAX_CONTENT_LENGTH = PROFILE_PHOTO_MAX_BYTES + 256 * 1024
     SESSION_COOKIE_HTTPONLY = True
-    SESSION_COOKIE_SAMESITE = "Lax"
+    SESSION_COOKIE_SAMESITE = "None"
     SESSION_COOKIE_SECURE = os.getenv("SESSION_COOKIE_SECURE", "false").lower() == "true"
     PERMANENT_SESSION_LIFETIME = 60 * 60 * 12
     DEBUG = os.getenv("FLASK_DEBUG", "false").lower() == "true"
