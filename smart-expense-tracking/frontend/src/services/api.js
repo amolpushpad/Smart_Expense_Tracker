@@ -57,6 +57,18 @@ export const expensesApi = {
 	remove: (expenseId) => api.delete(`/expenses/${expenseId}`),
 };
 
+export const expenseImportApi = {
+	preview: (file, config = {}) => {
+		const form = new FormData();
+		form.append('file', file);
+		return api.post('/expenses/import/preview', form, {
+			...config,
+			headers: { ...config.headers, 'Content-Type': 'multipart/form-data' },
+		});
+	},
+	confirm: rows => api.post('/expenses/import/confirm', { rows }),
+};
+
 export const categoriesApi = {
 	list: () => api.get('/categories'),
 	create: (category) => api.post('/categories', category),

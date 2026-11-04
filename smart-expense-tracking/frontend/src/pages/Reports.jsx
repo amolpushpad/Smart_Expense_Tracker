@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import AnalyticsPeriodFilter from '../components/AnalyticsPeriodFilter';
+import CsvImportDialog from '../components/CsvImportDialog';
 import PageHeader from '../components/PageHeader';
 import { useAnalyticsReport } from '../hooks/useAnalyticsReport';
-import { analyticsApi, getApiErrorMessage } from '../services/api';
+import { analyticsApi, getApiErrorMessage, notifyDashboardDataChanged } from '../services/api';
 import '../styles/analytics.css';
 import '../styles/expenses.css';
 
@@ -24,6 +25,8 @@ export default function Reports() {
 	const filter = useAnalyticsReport();
 	const [exporting, setExporting] = useState(false);
 	const [exportError, setExportError] = useState('');
+	const [importOpen, setImportOpen] = useState(false);
+	const [importNotice, setImportNotice] = useState('');
 	const report = filter.report;
 
 	const exportReport = async () => {
@@ -50,11 +53,13 @@ export default function Reports() {
 			<AnalyticsPeriodFilter {...filter} />
 			<div className="analytics-report-actions">
 				<button className="secondary-button" type="button" onClick={filter.refresh} disabled={filter.loading}>{filter.loading ? 'Loading...' : 'Refresh'}</button>
+				<button className="secondary-button" type="button" onClick={() => { setImportNotice(''); setImportOpen(true); }}>Import CSV</button>
 				<button className="primary-btn" type="button" onClick={exportReport} disabled={!report || filter.loading || exporting}>{exporting ? 'Preparing CSV...' : 'Export CSV'}</button>
 			</div>
 		</div>
 		{filter.error && <div className="analytics-alert" role="alert">{filter.error}</div>}
 		{exportError && <div className="analytics-alert" role="alert">{exportError}</div>}
+		{importNotice && <div className="expense-alert success" role="status"><span>{importNotice}</span><button type="button" onClick={() => setImportNotice('')} aria-label="Dismiss notification">×</button></div>}
 		{filter.loading && !report && <div className="analytics-loading" role="status"><span className="analytics-spinner" /> Generating report for the selected period...</div>}
 		{report && <>
 			<div className="analytics-period-heading">
@@ -90,5 +95,13 @@ export default function Reports() {
 				</table>
 			</div>
 		</>}
+		{importOpen && <CsvImportDialog
+			onClose={() => setImportOpen(false)}
+			onImported={count => {
+				setImportOpen(false);
+				setImportNotice(`${count} ${count === 1 ? 'transaction was' : 'transactions were'} imported successfully.`);
+				notifyDashboardDataChanged();
+			}}
+		/>}
 	</section>;
 }

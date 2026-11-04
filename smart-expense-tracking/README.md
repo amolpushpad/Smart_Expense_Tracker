@@ -50,6 +50,7 @@ Phase 1 provides the React/Vite interface. Phase 2 adds Flask, MySQL-backed acco
 - Recharts visualizations, selected-month filtering, real transaction history, and transparent financial insights
 - Weekly (Monday–Sunday), monthly, and custom inclusive date-range analytics with previous-period comparisons, category totals, largest transactions, and monthly budget utilization
 - Authenticated CSV exports containing filtered transaction rows and matching income, expense, savings, and balance totals
+- Authenticated expense CSV imports with row validation, existing-category checks, duplicate review, and all-or-nothing confirmation; files are limited to 5 MB and 5,000 transaction rows
 - Aggregations use MySQL/SQLAlchemy `SUM` and Python `Decimal` for monetary precision; Pandas/NumPy are intentionally not used for these database-backed financial totals
 - Weekly and monthly dashboard views reuse the authenticated analytics report; week boundaries are Monday–Sunday. Month-to-date budget progress remains distinct from weekly cash flow.
 - Optional ML APIs provide a TF-IDF/logistic-regression category suggestion trained on small static example phrases, keyword fallback rules, a historical daily-average or Scikit-learn monthly prediction, category median/MAD unusual-spending flags, and exact normalized-text duplicate candidates. ML insights cannot mutate transactions.
@@ -150,7 +151,7 @@ All account and financial routes below require the authenticated session except 
 | Group | Routes |
 |---|---|
 | Health/auth | `GET /api/health`; `GET /api/auth/csrf`; `POST /api/auth/register`; `POST /api/auth/login`; `POST /api/auth/logout`; `GET /api/auth/me` |
-| Expenses | `GET/POST /api/expenses`; `GET/PUT/DELETE /api/expenses/<id>` |
+| Expenses | `GET/POST /api/expenses`; `GET/PUT/DELETE /api/expenses/<id>`; `POST /api/expenses/import/preview` (multipart `file`); `POST /api/expenses/import/confirm` (JSON `{ "rows": [...] }`) |
 | Income | `GET/POST /api/income`; `GET/PUT/DELETE /api/income/<id>` |
 | Budgets | `GET/POST /api/budgets`; `GET/PUT/DELETE /api/budgets/<id>` |
 | Categories | `GET/POST /api/categories`; `PUT/DELETE /api/categories/<id>` |
@@ -160,6 +161,8 @@ All account and financial routes below require the authenticated session except 
 | Profile/security | `GET/PUT /api/users/profile`; `POST/DELETE/GET /api/users/profile/photo`; `POST /api/users/password` |
 
 Dates are ISO `YYYY-MM-DD`; report date filters are inclusive. Weekly analytics use Monday through Sunday. Monetary API values are decimal-formatted strings.
+
+Expense import CSVs require `date`, `amount`, and `category`; `description` and `vendor` are optional. Preview does not modify records. Confirmation revalidates the selected rows, skips possible duplicates unless approved, and associates every saved expense with the current session user.
 
 ## Seed data
 
