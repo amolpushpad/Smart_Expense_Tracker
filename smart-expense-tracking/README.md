@@ -36,7 +36,8 @@ Phase 1 provides the React/Vite interface. Phase 2 adds Flask, MySQL-backed acco
 ### Included
 - Separate Personal and Corporate sign-in/registration modes; existing Personal Mode routes and personal financial records remain intact
 - Corporate organization creation with a unique joining code, code-based employee onboarding, departments, and Admin, Employee, Manager, Finance Officer, and Executive roles
-- Role-scoped corporate dashboards, expense submission/history, and an Employee → Manager → Finance Officer approval workflow
+- Role-scoped corporate dashboards, expense submission/history, and an Employee → Manager → Finance Officer approval workflow with reviewer notes and history
+- Corporate expense receipts (PDF/PNG/JPG, 5 MB maximum), reimbursement tracking, organization settings, department manager assignment, member access controls, audit events, filtered reports, and CSV export
 - Idempotent `seed-corporate-demo` command with fictional users and expense examples dated across the current and previous two months
 - Login and registration connected to Flask APIs with frontend and server-side validation
 - Protected dashboard routes with responsive navigation across finance, analytics, reports, and account screens
@@ -90,7 +91,9 @@ Install MySQL and create a database and application user using [database/README.
 
 `flask --app app init-db` creates missing tables and seeds built-in categories without dropping or resetting existing tables. For an existing database, back it up and run `flask --app app migrate-profile` to add missing nullable profile fields and username uniqueness. The profile migration is repeatable. Neither command deletes financial records.
 
-Corporate features use separate `corporate_organizations`, `corporate_departments`, `corporate_memberships`, and `corporate_expenses` tables. Run `flask --app app init-db` once to create these new tables; it does not alter or delete existing Personal Mode data. To load optional fictional sample data for three months, run `flask --app app seed-corporate-demo`. The command is idempotent for its demo organization and refuses to overwrite accounts if any of its sample email addresses already exist. Demo accounts use the `@northstar-demo.example` domain and the shared password `NorthstarDemo2026!`; the generated joining code is printed by the command and shown to organization admins in the dashboard.
+Corporate features use separate `corporate_organizations`, `corporate_departments`, `corporate_memberships`, and `corporate_expenses` tables, plus approval-history and audit-log tables. For a database that already contains the earlier corporate tables, back it up and run `flask --app app migrate-corporate-workflows` to add the workflow columns and tables without replacing existing rows or changing personal tables. This migration is repeatable. For a fresh database, `flask --app app init-db` creates the current schema. To load optional fictional sample data for three months, run `flask --app app seed-corporate-demo`. The command is idempotent for its demo organization and refuses to overwrite accounts if any of its sample email addresses already exist. Demo accounts use the `@northstar-demo.example` domain and the shared password `NorthstarDemo2026!`; the generated joining code is printed by the command and shown to organization admins in the dashboard.
+
+Corporate receipts are stored outside the static web root under `backend/instance/corporate_receipts` by default. Configure `CORPORATE_RECEIPT_DIR` to an absolute persistent directory when deploying on infrastructure with an ephemeral filesystem; receipt files are separate from the MySQL schema. The `/api/corporate/expenses/with-receipt` endpoint accepts multipart `amount`, `date` (`YYYY-MM-DD`), `category`, `merchant`, optional `description`, and optional `receipt` fields. Receipt reads require corporate authentication and an expense visible to the requesting role.
 
 Tests use in-memory SQLite fixtures and do not read or write configured MySQL records. Local runtime verification uses only the health endpoint; it does not create, modify, or delete user transactions.
 
@@ -115,6 +118,7 @@ Backend settings:
 | `FLASK_DEBUG` | Set `true` only for local development. |
 | `ADMIN_EMAILS` | Optional comma-separated existing account emails allowed to administer shared categories. |
 | `PROFILE_UPLOAD_DIR` | Optional absolute persistent directory for profile photos; defaults to `backend/instance/profile_photos`. |
+| `CORPORATE_RECEIPT_DIR` | Optional absolute persistent directory for corporate receipts; defaults to `backend/instance/corporate_receipts`. |
 
 The frontend uses `VITE_API_BASE_URL`; by default it targets port 5000 on the hostname used to open the frontend (for example, `127.0.0.1` or `localhost`). This keeps the session cookie and CSRF token on the same host. If `VITE_API_BASE_URL` is set explicitly, use the same hostname for the frontend and API. The Vite origin must be listed in `FRONTEND_ORIGINS`.
 
@@ -131,6 +135,7 @@ py -m venv .venv
 python -m pip install -r requirements.txt
 python -m flask --app app init-db
 python -m flask --app app migrate-profile
+python -m flask --app app migrate-corporate-workflows
 python -m flask --app app run
 ```
 
@@ -159,6 +164,7 @@ All account and financial routes below require the authenticated session except 
 | Analytics/reports | `GET /api/analytics` with weekly/monthly/custom filters; `GET /api/analytics/export.csv` |
 | ML insights | `POST /api/ml/categorize`; `GET /api/ml/prediction`; `/anomalies`; `/duplicates`; `/insights` |
 | Profile/security | `GET/PUT /api/users/profile`; `POST/DELETE/GET /api/users/profile/photo`; `POST /api/users/password` |
+| Corporate | `/api/corporate/organizations`, `/join`, `/overview`, `/organization`, `/departments`, `/members`, `/expenses`, `/approvals`, `/reimbursements`, `/reports`, and `/audit-log` |
 
 Dates are ISO `YYYY-MM-DD`; report date filters are inclusive. Weekly analytics use Monday through Sunday. Monetary API values are decimal-formatted strings.
 

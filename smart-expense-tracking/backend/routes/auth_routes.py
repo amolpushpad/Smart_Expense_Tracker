@@ -18,7 +18,10 @@ def _session_user(user, mode):
     result = user.to_safe_dict()
     result["workspace_mode"] = mode
     if mode == "corporate":
-        membership = CorporateMembership.query.filter_by(user_id=user.user_id).first()
+        membership = CorporateMembership.query.filter_by(
+            user_id=user.user_id,
+            membership_status="active",
+        ).first()
         if membership:
             result.update({
                 "role": membership.role,
@@ -63,9 +66,14 @@ def login():
     user = authenticate_user(email, password)
     if not user:
         return jsonify(success=False, message="Invalid email or password."), 401
-    membership = CorporateMembership.query.filter_by(user_id=user.user_id).first()
+    membership = CorporateMembership.query.filter_by(
+        user_id=user.user_id,
+        membership_status="active",
+    ).first()
     if mode == "corporate" and not membership:
         return jsonify(success=False, message="This account is not part of a corporate organization."), 403
+    if mode == "corporate" and membership.organization.status != "active":
+        return jsonify(success=False, message="This corporate organization is inactive."), 403
     session.clear()
     session["user_id"] = user.user_id
     session["workspace_mode"] = mode
@@ -89,7 +97,12 @@ def current_user():
         session.pop("user_id", None)
         return jsonify(success=False, message="Authentication required."), 401
     mode = session.get("workspace_mode", "personal")
-    if mode == "corporate" and not CorporateMembership.query.filter_by(user_id=user.user_id).first():
-        session.clear()
-        return jsonify(success=False, message="Corporate membership is no longer available. Sign in again."), 401
+    if mode == "corporate":
+        membership = CorporateMembership.query.filter_by(
+            user_id=user.user_id,
+            membership_status="active",
+        ).first()
+        if not membership or membership.organization.status != "active":
+            session.clear()
+            return jsonify(success=False, message="Corporate membership is no longer available. Sign in again."), 401
     return jsonify(success=True, data={"user": _session_user(user, mode)})
