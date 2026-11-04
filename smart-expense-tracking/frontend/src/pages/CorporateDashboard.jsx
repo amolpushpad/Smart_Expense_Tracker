@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { corporateApi } from '../services/api';
+import CorporateWorkflowPanel from './CorporateWorkflowPanel';
 import '../styles/corporate.css';
 
 const ROLES = ['Admin', 'Employee', 'Manager', 'Finance Officer', 'Executive'];
@@ -13,6 +14,9 @@ export default function CorporateDashboard({ user }) {
 	const [departmentName, setDepartmentName] = useState('');
 	const [memberEdits, setMemberEdits] = useState({});
 	const [notes, setNotes] = useState({});
+	const [view, setView] = useState('overview');
+	const [receipt, setReceipt] = useState(null);
+	const [uploadProgress, setUploadProgress] = useState(0);
 	const [loading, setLoading] = useState(true);
 	const [busy, setBusy] = useState(false);
 	const [error, setError] = useState('');
@@ -21,9 +25,18 @@ export default function CorporateDashboard({ user }) {
 	const refresh = useCallback(async () => {
 		setError('');
 		try {
-			const response = await corporateApi.overview();
-			setData(response.data.data);
-			setMemberEdits(Object.fromEntries((response.data.data.members || []).map(member => [
+			const rolePath = { Admin: 'admin', Employee: 'employee', Manager: 'manager', 'Finance Officer': 'finance', Executive: 'executive' }[user.role];
+			const [response, dashboard] = await Promise.all([
+				corporateApi.overview(),
+				corporateApi.dashboard(rolePath),
+			]);
+			const overview = response.data.data;
+			const roleData = dashboard.data.data;
+			setData({
+				...overview,
+				summary: { ...overview.summary, ...roleData.summary },
+			});
+			setMemberEdits(Object.fromEntries((overview.members || []).map(member => [
 				member.membership_id,
 				{ role: member.role, department_id: member.department_id ?? '' },
 			])));
@@ -32,7 +45,7 @@ export default function CorporateDashboard({ user }) {
 		} finally {
 			setLoading(false);
 		}
-	}, []);
+	}, [user.role]);
 
 	useEffect(() => { refresh(); }, [refresh]);
 
@@ -54,8 +67,16 @@ export default function CorporateDashboard({ user }) {
 	const submitExpense = event => {
 		event.preventDefault();
 		runAction(async () => {
-			await corporateApi.submitExpense(form);
+			setUploadProgress(0);
+			await corporateApi.submitExpenseWithReceipt(
+				{ ...form, receipt },
+				{ onUploadProgress: progress => {
+					if (progress.total) setUploadProgress(Math.round((progress.loaded / progress.total) * 100));
+				} },
+			);
 			setForm({ amount: '', date: today, category: 'Travel', merchant: '', description: '' });
+			setReceipt(null);
+			setUploadProgress(0);
 		});
 	};
 
@@ -68,6 +89,13 @@ export default function CorporateDashboard({ user }) {
 	};
 
 	const canSubmit = ['Employee', 'Manager', 'Admin'].includes(user.role);
+	const tabs = [
+		{ id: 'overview', label: 'Overview', roles: ROLES },
+		{ id: 'approvals', label: 'Approvals', roles: ['Manager', 'Finance Officer', 'Admin'] },
+		{ id: 'reimbursements', label: 'Reimbursements', roles: ['Employee', 'Finance Officer', 'Admin', 'Executive'] },
+		{ id: 'reports', label: 'Reports', roles: ['Admin', 'Manager', 'Finance Officer', 'Executive'] },
+		{ id: 'settings', label: 'Organization settings', roles: ['Admin'] },
+	].filter(tab => tab.roles.includes(user.role));
 	const summary = data?.summary;
 	if (loading) return <div className="corporate-loading" role="status">Loading corporate workspace…</div>;
 
@@ -78,6 +106,10 @@ export default function CorporateDashboard({ user }) {
 		</header>
 		{error && <div className="corporate-alert error" role="alert">{error}</div>}
 		{message && <div className="corporate-alert success" role="status">{message}</div>}
+		<nav className="corporate-tabs" aria-label="Corporate workspace sections">
+			{tabs.map(tab => <button key={tab.id} type="button" className={view === tab.id ? 'selected' : ''} aria-current={view === tab.id ? 'page' : undefined} onClick={() => setView(tab.id)}>{tab.label}</button>)}
+		</nav>
+		{view === 'overview' ? <>
 		<section className="corporate-stats" aria-label="Corporate expense summary">
 			<article><span>Expenses in view</span><strong>{summary?.expense_count ?? 0}</strong></article>
 			<article><span>Total submitted</span><strong>{money(summary?.total_amount)}</strong></article>
@@ -107,6 +139,19 @@ export default function CorporateDashboard({ user }) {
 					<label>Category<select value={form.category} onChange={event => setForm({ ...form, category: event.target.value })}>{CATEGORIES.map(category => <option key={category}>{category}</option>)}</select></label>
 					<label>Merchant<input value={form.merchant} onChange={event => setForm({ ...form, merchant: event.target.value })} maxLength={160} required /></label>
 					<label className="wide">Description<textarea value={form.description} onChange={event => setForm({ ...form, description: event.target.value })} maxLength={500} rows="3" /></label>
+					<label className="wide">Receipt (PDF, PNG or JPG, up to 5 MB)<input type="file" accept=".pdf,.png,.jpg,.jpeg,application/pdf,image/png,image/jpeg" onChange={event => {
+						const selected = event.target.files?.[0] || null;
+						setError('');
+						if (selected && selected.size > 5 * 1024 * 1024) {
+							setReceipt(null);
+							setError('Receipt must be 5 MB or smaller.');
+							event.target.value = '';
+							return;
+						}
+						setReceipt(selected);
+					}} /></label>
+					{receipt && <p className="corporate-upload-file">{receipt.name} · {(receipt.size / 1024 / 1024).toFixed(2)} MB</p>}
+					{busy && receipt && <div className="corporate-upload-progress" role="status"><span>Uploading receipt… {uploadProgress}%</span><progress max="100" value={uploadProgress} /></div>}
 					<button className="corporate-primary" disabled={busy}>{busy ? 'Saving…' : 'Submit for approval'}</button>
 				</form>
 			</section>}
@@ -143,5 +188,6 @@ export default function CorporateDashboard({ user }) {
 				</tr>) : <tr><td className="empty-row" colSpan="6">No corporate expense submissions yet.</td></tr>}</tbody>
 			</table></div>
 		</section>
+		</> : <CorporateWorkflowPanel view={view} user={user} onRefresh={refresh} />}
 	</div>;
 }

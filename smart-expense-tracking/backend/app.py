@@ -36,6 +36,7 @@ def create_app(config_object=Config):
     from routes.budget_routes import budget_bp
     from routes.category_routes import category_bp
     from routes.corporate_routes import corporate_bp
+    from routes.corporate_workflow_routes import corporate_workflow_bp
     from routes.dashboard_routes import dashboard_bp
     from routes.demo_routes import demo_bp
     from routes.expense_routes import expense_bp
@@ -49,6 +50,7 @@ def create_app(config_object=Config):
     app.register_blueprint(budget_bp, url_prefix="/api/budgets")
     app.register_blueprint(category_bp, url_prefix="/api/categories")
     app.register_blueprint(corporate_bp, url_prefix="/api/corporate")
+    app.register_blueprint(corporate_workflow_bp, url_prefix="/api/corporate")
     app.register_blueprint(dashboard_bp, url_prefix="/api/dashboard")
     app.register_blueprint(demo_bp, url_prefix="/api/demo")
     app.register_blueprint(expense_bp, url_prefix="/api/expenses")
@@ -90,6 +92,49 @@ def create_app(config_object=Config):
                 db.session.add(Category(category_name=name))
         db.session.commit()
         print("Database tables are ready and default categories are seeded.")
+
+    @app.cli.command("migrate-corporate-workflows")
+    def migrate_corporate_workflows():
+        """Add corporate workflow fields and history tables without changing personal data."""
+        db.create_all()
+        additions = {
+            "corporate_organizations": {
+                "organization_email": "VARCHAR(254) NULL",
+                "contact_phone": "VARCHAR(30) NULL",
+                "address": "VARCHAR(300) NULL",
+                "status": "VARCHAR(20) NOT NULL DEFAULT 'active'",
+                "joining_enabled": "BOOLEAN NOT NULL DEFAULT 1",
+            },
+            "corporate_departments": {
+                "manager_id": "INTEGER NULL",
+                "status": "VARCHAR(20) NOT NULL DEFAULT 'active'",
+            },
+            "corporate_memberships": {
+                "membership_status": "VARCHAR(20) NOT NULL DEFAULT 'active'",
+                "joined_at": "DATETIME NULL",
+            },
+            "corporate_expenses": {
+                "rejection_reason": "VARCHAR(500) NULL",
+                "receipt_path": "VARCHAR(255) NULL",
+                "receipt_filename": "VARCHAR(255) NULL",
+                "paid_at": "DATETIME NULL",
+                "updated_at": "DATETIME NULL",
+            },
+        }
+        preparer = db.engine.dialect.identifier_preparer
+        with db.engine.begin() as connection:
+            for table_name, columns in additions.items():
+                existing = {column["name"] for column in inspect(connection).get_columns(table_name)}
+                for column_name, definition in columns.items():
+                    if column_name in existing:
+                        continue
+                    quoted_table = preparer.quote(table_name)
+                    quoted_column = preparer.quote(column_name)
+                    connection.execute(text(
+                        f"ALTER TABLE {quoted_table} ADD COLUMN {quoted_column} {definition}"
+                    ))
+        db.create_all()
+        print("Corporate workflow fields and history tables are ready; existing records were preserved.")
 
     @app.cli.command("import-synthetic-snapshots")
     @click.option("--csv", "csv_path", type=click.Path(exists=True, dir_okay=False, path_type=Path), required=True)

@@ -13,6 +13,7 @@ from models import (
     Organization,
     User,
 )
+from services.corporate_workflow_service import managed_department_ids, visible_expenses
 from services.auth_service import validate_email
 
 corporate_bp = Blueprint("corporate", __name__)
@@ -28,22 +29,28 @@ def _membership():
     user_id = session.get("user_id")
     if not user_id or session.get("workspace_mode") != "corporate":
         return None
-    return CorporateMembership.query.filter_by(user_id=user_id).first()
+    membership = CorporateMembership.query.filter_by(
+        user_id=user_id,
+        membership_status="active",
+    ).first()
+    return membership if membership and membership.organization.status == "active" else None
 
 
 def _error(message, status=400):
     return jsonify(success=False, message=message), status
 
 
-def _membership_response(membership):
+def _membership_response(membership, include_code=True):
+    organization = {
+        "organization_id": membership.organization.organization_id,
+        "name": membership.organization.name,
+    }
+    if include_code:
+        organization["joining_code"] = membership.organization.joining_code
     return {
         "workspace_mode": "corporate",
         "role": membership.role,
-        "organization": {
-            "organization_id": membership.organization.organization_id,
-            "name": membership.organization.name,
-            "joining_code": membership.organization.joining_code,
-        },
+        "organization": organization,
         "department": membership.department.name if membership.department else None,
     }
 
@@ -116,10 +123,16 @@ def join_organization():
     organization = Organization.query.filter_by(joining_code=code).first()
     if not organization:
         return _error("That organization joining code was not found.", 404)
+    if organization.status != "active" or not organization.joining_enabled:
+        return _error("This organization is not accepting new members.", 403)
     user, error = _create_user(payload.get("name"), payload.get("email"), payload.get("password"))
     if error:
         return _error(error, 409 if "already exists" in error else 400)
-    department = Department.query.filter_by(organization_id=organization.organization_id, name="General").first()
+    department = Department.query.filter_by(
+        organization_id=organization.organization_id,
+        name="General",
+        status="active",
+    ).first()
     membership = CorporateMembership(
         organization_id=organization.organization_id,
         user_id=user.user_id,
@@ -141,23 +154,10 @@ def overview():
     if not membership:
         return _error("Corporate authentication is required.", 401)
 
-    query = CorporateExpense.query.filter_by(organization_id=membership.organization_id)
-    if membership.role == "Employee":
-        query = query.filter_by(submitter_id=membership.user_id)
-    elif membership.role == "Manager" and membership.department_id:
-        query = query.filter_by(department_id=membership.department_id)
+    query = visible_expenses(membership)
     expenses = query.order_by(CorporateExpense.expense_date.desc(), CorporateExpense.expense_id.desc()).limit(100).all()
 
-    if membership.role in ("Admin", "Executive"):
-        totals_query = CorporateExpense.query.filter_by(organization_id=membership.organization_id)
-    elif membership.role == "Manager" and membership.department_id:
-        totals_query = CorporateExpense.query.filter_by(
-            organization_id=membership.organization_id, department_id=membership.department_id
-        )
-    else:
-        totals_query = CorporateExpense.query.filter_by(
-            organization_id=membership.organization_id, submitter_id=membership.user_id
-        )
+    totals_query = visible_expenses(membership)
     counts = {status: 0 for status in EXPENSE_STATUSES}
     amount = Decimal("0.00")
     for row in totals_query.all():
@@ -170,8 +170,10 @@ def overview():
         manager_queue = CorporateExpense.query.filter_by(
             organization_id=membership.organization_id, status="Pending Manager"
         )
-        if membership.role == "Manager" and membership.department_id:
-            manager_queue = manager_queue.filter_by(department_id=membership.department_id)
+        if membership.role == "Manager":
+            manager_queue = manager_queue.filter(
+                CorporateExpense.department_id.in_(managed_department_ids(membership) or [0])
+            )
         pending.extend(manager_queue.order_by(CorporateExpense.expense_date.desc()).all())
     if membership.role in ("Finance Officer", "Admin"):
         pending.extend(CorporateExpense.query.filter_by(
@@ -179,7 +181,10 @@ def overview():
         ).order_by(CorporateExpense.expense_date.desc()).all())
 
     data = {
-        "organization": _membership_response(membership)["organization"],
+        "organization": _membership_response(
+            membership,
+            include_code=membership.role == "Admin",
+        )["organization"],
         "role": membership.role,
         "department": membership.department.name if membership.department else None,
         "summary": {
@@ -262,11 +267,7 @@ def list_expenses():
     membership = _membership()
     if not membership:
         return _error("Corporate authentication is required.", 401)
-    query = CorporateExpense.query.filter_by(organization_id=membership.organization_id)
-    if membership.role == "Employee":
-        query = query.filter_by(submitter_id=membership.user_id)
-    elif membership.role == "Manager" and membership.department_id:
-        query = query.filter_by(department_id=membership.department_id)
+    query = visible_expenses(membership)
     status = request.args.get("status")
     if status:
         if status not in EXPENSE_STATUSES:
@@ -344,7 +345,7 @@ def decide_expense(expense_id):
         return _error("You cannot approve your own expense.", 403)
 
     if expense.status == "Pending Manager" and membership.role in ("Manager", "Admin"):
-        if membership.role == "Manager" and membership.department_id and expense.department_id != membership.department_id:
+        if membership.role == "Manager" and expense.department_id not in managed_department_ids(membership):
             return _error("This expense is outside your department.", 403)
         expense.manager_id = membership.user_id
         expense.manager_note = note.strip() or None
