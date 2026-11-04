@@ -54,7 +54,6 @@ class Config:
         if email.strip()
     }
     PROFILE_UPLOAD_DIR = os.getenv("PROFILE_UPLOAD_DIR") or None
-    CORPORATE_RECEIPT_DIR = os.getenv("CORPORATE_RECEIPT_DIR") or None
     PROFILE_PHOTO_MAX_BYTES = 5 * 1024 * 1024
     MAX_CONTENT_LENGTH = PROFILE_PHOTO_MAX_BYTES + 256 * 1024
     SESSION_COOKIE_HTTPONLY = True

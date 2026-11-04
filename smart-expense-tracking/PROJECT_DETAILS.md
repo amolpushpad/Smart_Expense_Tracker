@@ -33,13 +33,9 @@ SpendWise is a web application for tracking personal finances and managing organ
 
 ### Corporate workspace
 
-Corporate Mode keeps organization finances separate from Personal Mode records. An organization can be created with an initial Admin account, and members can join with its active joining code. Admins can update organization details, manage departments and member access, assign department managers, regenerate the joining code, and review an organization audit log. Admin-managed member creation is available for users who need a directly provisioned account.
+Corporate Mode keeps organization finances separate from Personal Mode records. An organization can be created with an initial Admin account, and new members can join using its joining code. Organizations can manage departments and members, submit corporate expenses, and review approval queues.
 
-Roles are Admin, Employee, Manager, Finance Officer, and Executive. Expenses support the Employee → Manager → Finance Officer review flow, searchable queues, approval history, reviewer notes, and required rejection reasons. Employees see their own expenses, managers are scoped to the departments they manage, and finance/admin/executive roles have organization-wide visibility. Approved expenses can be tracked as paid without changing the existing expense status values. PDF, PNG, and JPG receipts are stored outside the static web root and require an authenticated, authorized download.
-
-Role-scoped reports include filtered transaction lists, status totals, department/category/employee/month summaries, and formula-safe CSV export. Corporate API mutations use the existing cookie-session, CSRF, and organization membership checks.
-
-The repeatable `flask --app app migrate-corporate-workflows` command adds the workflow columns and approval/audit tables to an existing corporate schema. It does not replace existing corporate expenses or modify personal tables. Back up the database before applying it. Configure `CORPORATE_RECEIPT_DIR` to persistent storage in deployments whose application filesystem is ephemeral; otherwise receipts use `backend/instance/corporate_receipts`.
+Roles are Admin, Employee, Manager, Finance Officer, and Executive. The expense workflow supports Employee → Manager → Finance Officer review, with approval/rejection status and reviewer notes. Data visibility is scoped to the organization and role; employees see their own expenses, managers are scoped to their department, and elevated roles have broader organization visibility.
 
 The optional `seed-corporate-demo` command creates a fictional organization and sample expenses spanning three calendar months. It refuses to overwrite an existing demo organization or colliding demo accounts.
 
@@ -64,7 +60,7 @@ backend/
   extensions.py          Shared SQLAlchemy extension
   models/                Personal and corporate database models
   routes/                REST API endpoints and request handling
-  services/              Validation, corporate workflow, analytics, dashboard, and ML logic
+  services/              Validation, business logic, analytics, dashboard, and ML logic
   ml/                    Synthetic snapshot import and preprocessing
   tests/                 Backend API/service tests
 
@@ -85,7 +81,7 @@ The backend registers blueprints for authentication, analytics, budgets, categor
 
 ## Data model and calculations
 
-Personal data is associated with its owner. Core tables are `user`, `category`, `expenses`, `income`, and `budgets`. Corporate data is stored separately in `corporate_organizations`, `corporate_departments`, `corporate_memberships`, and `corporate_expenses`, with approval history in `corporate_expense_approvals` and administrative activity in `corporate_audit_logs`. Receipt files are stored separately from MySQL. Synthetic demo snapshots are isolated in `synthetic_finance_snapshots`.
+Personal data is associated with its owner. Core tables are `user`, `category`, `expenses`, `income`, and `budgets`. Corporate data is stored separately in `corporate_organizations`, `corporate_departments`, `corporate_memberships`, and `corporate_expenses`. Synthetic demo snapshots are isolated in `synthetic_finance_snapshots`.
 
 Expense, income, and budget monetary values use `DECIMAL(10,2)`/SQLAlchemy `Numeric(10,2)`; corporate expenses use `Numeric(12,2)`. Authoritative financial totals use database `SUM` and Python `Decimal`, rather than floating-point or Pandas/NumPy aggregation. A personal budget version is unique for a user, month, year, and category scope; the scope also distinguishes the overall budget from category budgets. The latest version whose start month is not after the viewed month is active. Deleting a budget removes all versions in that scope so an older recurring version cannot unexpectedly resume.
 
@@ -106,7 +102,7 @@ Base API URL: `http://localhost:5000/api` in local development. Health, CSRF boo
 | Analytics | `GET /analytics`; `GET /analytics/export.csv` |
 | ML insights | `POST /ml/categorize`; `GET /ml/prediction`; `/ml/anomalies`; `/ml/duplicates`; `/ml/insights` |
 | Profile and account security | `GET/PUT /users/profile`; `GET/POST/DELETE /users/profile/photo`; `POST /users/password` |
-| Corporate | `/corporate/organizations`, `/corporate/join`, `/corporate/overview`, `/corporate/organization`, `/corporate/departments`, `/corporate/members`, `/corporate/expenses`, `/corporate/approvals`, `/corporate/reimbursements`, `/corporate/reports`, and `/corporate/audit-log` |
+| Corporate | `/corporate/organizations`, `/corporate/join`, `/corporate/overview`, `/corporate/departments`, `/corporate/members`, `/corporate/expenses` and expense decision routes |
 | Public synthetic demo | `GET /demo/analytics`; `GET /demo/ml/evaluation`; `POST /demo/ml/estimate-monthly-expenses` |
 
 ## Local setup

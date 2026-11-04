@@ -108,51 +108,10 @@ export const profileApi = {
 export const corporateApi = {
   overview: () => api.get('/corporate/overview'),
   submitExpense: payload => api.post('/corporate/expenses', payload),
-  submitExpenseWithReceipt: (payload, config = {}) => {
-    const form = new FormData();
-    Object.entries(payload).forEach(([key, value]) => {
-      if (value !== undefined && value !== null) form.append(key, value);
-    });
-    return api.post('/corporate/expenses/with-receipt', form, {
-      ...config,
-      headers: { ...config.headers, 'Content-Type': 'multipart/form-data' },
-    });
-  },
   expenses: params => api.get('/corporate/expenses', { params }),
   decideExpense: (expenseId, payload) => api.post(`/corporate/expenses/${expenseId}/decision`, payload),
   createDepartment: payload => api.post('/corporate/departments', payload),
   updateMember: (membershipId, payload) => api.patch(`/corporate/members/${membershipId}`, payload),
-  organization: () => api.get('/corporate/organization'),
-  updateOrganization: payload => api.put('/corporate/organization', payload),
-  regenerateJoiningCode: () => api.post('/corporate/organization/regenerate-code'),
-  members: params => api.get('/corporate/members/search', { params }),
-  addMember: payload => api.post('/corporate/members', payload),
-  updateWorkflowMember: (membershipId, payload) => api.put(`/corporate/members/${membershipId}`, payload),
-  departments: () => api.get('/corporate/departments'),
-  updateDepartment: (departmentId, payload) => api.put(`/corporate/departments/${departmentId}`, payload),
-  departmentMembers: departmentId => api.get(`/corporate/departments/${departmentId}/members`),
-  expense: expenseId => api.get(`/corporate/expenses/${expenseId}`),
-  updateExpense: (expenseId, payload) => api.put(`/corporate/expenses/${expenseId}`, payload),
-  uploadReceipt: (expenseId, file) => {
-    const form = new FormData();
-    form.append('receipt', file);
-    return api.post(`/corporate/expenses/${expenseId}/receipt`, form, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    });
-  },
-  receipt: (expenseId, config = {}) => api.get(`/corporate/expenses/${expenseId}/receipt`, {
-    ...config,
-    responseType: 'blob',
-  }),
-  approvals: params => api.get('/corporate/approvals', { params }),
-  review: (expenseId, action, payload = {}) => api.post(`/corporate/approvals/${expenseId}/${action}`, payload),
-  reimbursements: params => api.get('/corporate/reimbursements', { params }),
-  dashboard: role => api.get(`/corporate/dashboard/${role}`),
-  reportSummary: params => api.get('/corporate/reports/summary', { params }),
-  transactions: params => api.get('/corporate/reports/transactions', { params }),
-  exportReport: params => api.get('/corporate/reports/export', { params, responseType: 'blob' }),
-  auditLog: () => api.get('/corporate/audit-log'),
-  profile: () => api.get('/corporate/profile'),
 };
 
 export const dashboardSummaryApi = {
