@@ -45,12 +45,6 @@ export function useAnalyticsReport() {
 		return () => controller.abort();
 	}, [queryKey, refreshKey]);
 
-	useEffect(() => {
-		const refreshAfterDataChange = () => setRefreshKey(value => value + 1);
-		window.addEventListener('dashboard:data-changed', refreshAfterDataChange);
-		return () => window.removeEventListener('dashboard:data-changed', refreshAfterDataChange);
-	}, []);
-
 	const report = loadedReport.queryKey === queryKey ? loadedReport.data : null;
 	return {
 		period, setPeriod, weekDate, setWeekDate, selectedMonth, setSelectedMonth,

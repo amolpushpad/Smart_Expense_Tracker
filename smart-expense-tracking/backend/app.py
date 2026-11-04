@@ -39,7 +39,6 @@ def create_app(config_object=Config):
     from routes.dashboard_routes import dashboard_bp
     from routes.demo_routes import demo_bp
     from routes.expense_routes import expense_bp
-    from routes.expense_import_routes import expense_import_bp
     from routes.income_routes import income_bp
     from routes.ml_routes import ml_bp
     from routes.user_routes import user_bp
@@ -52,7 +51,6 @@ def create_app(config_object=Config):
     app.register_blueprint(dashboard_bp, url_prefix="/api/dashboard")
     app.register_blueprint(demo_bp, url_prefix="/api/demo")
     app.register_blueprint(expense_bp, url_prefix="/api/expenses")
-    app.register_blueprint(expense_import_bp, url_prefix="/api/expenses")
     app.register_blueprint(income_bp, url_prefix="/api/income")
     app.register_blueprint(ml_bp, url_prefix="/api/ml")
     app.register_blueprint(user_bp, url_prefix="/api/users")
