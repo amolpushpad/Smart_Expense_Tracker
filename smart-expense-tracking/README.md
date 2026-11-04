@@ -149,6 +149,8 @@ npm run dev
 
 Vite defaults to `http://localhost:5173`.
 
+The frontend includes a Vercel rewrite to serve the React entry point for client-side routes such as `/corporate`. This allows direct links and browser refreshes on protected application pages; React Router then redirects unauthenticated visitors to `/login`.
+
 ## API overview
 
 All account and financial routes below require the authenticated session except registration, login, CSRF bootstrap, and health. State-changing requests must send `X-CSRF-Token`. Record reads and updates are scoped to the current user; category administration additionally requires an email listed in `ADMIN_EMAILS`.
